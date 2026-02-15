@@ -3,7 +3,7 @@ import SwiftData
 import PhotosUI
 import LensCore
 
-struct WordsTabView: View {
+struct WordsView: View {
     @Binding var captureImage: UIImage?
     @Binding var captureFilename: String?
 

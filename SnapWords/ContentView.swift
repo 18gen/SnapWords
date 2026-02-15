@@ -10,7 +10,7 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab(locale("tab.words"), systemImage: "textformat.abc", value: 0) {
-                WordsTabView(
+                WordsView(
                     captureImage: $captureImage,
                     captureFilename: $captureFilename
                 )
