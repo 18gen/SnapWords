@@ -23,6 +23,7 @@ struct ImportView: View {
     @State private var isFrozen = false
     @State private var zoomOCRTask: Task<Void, Never>?
     @State private var zoomController = ZoomController()
+    @State private var currentVisibleRect: CGRect = CGRect(x: 0, y: 0, width: 1, height: 1)
 
     enum SourceMode: Int, CaseIterable {
         case photo = 0
@@ -46,29 +47,30 @@ struct ImportView: View {
     private let ocrService = OCRService()
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                imageArea
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(16/9, contentMode: .fit)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(alignment: .bottomTrailing) {
-                        if displayedImage != nil {
-                            zoomButtons
-                        }
+        VStack(spacing: 0) {
+            imageArea
+                .frame(maxWidth: .infinity)
+                .aspectRatio(16/9, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(alignment: .bottomTrailing) {
+                    if displayedImage != nil {
+                        zoomButtons
                     }
-                    .padding(.horizontal)
-
-                if isProcessing {
-                    ProgressView(locale("lens.scanning"))
-                        .padding()
                 }
+                .padding(.horizontal)
+                .padding(.top)
 
-                if !allTokens.isEmpty {
+            if isProcessing {
+                ProgressView(locale("lens.scanning"))
+                    .padding()
+            }
+
+            if !allTokens.isEmpty {
+                ScrollView {
                     detectedWordsList
+                        .padding(.vertical)
                 }
             }
-            .padding(.vertical)
         }
         .navigationTitle(locale("import.title"))
         .toolbar {
@@ -107,7 +109,7 @@ struct ImportView: View {
                 WordPopoverView(
                     token: selectedToken,
                     allTokens: visibleTokens,
-                    image: image,
+                    image: croppedImage(from: image),
                     onSave: { showPopover = false },
                     onCancel: { showPopover = false }
                 )
@@ -315,7 +317,24 @@ struct ImportView: View {
         }
     }
 
+    private func croppedImage(from image: UIImage) -> UIImage {
+        guard let cgImage = image.cgImage else { return image }
+        let w = CGFloat(cgImage.width)
+        let h = CGFloat(cgImage.height)
+        let cropRect = CGRect(
+            x: (currentVisibleRect.origin.x * w).rounded(),
+            y: (currentVisibleRect.origin.y * h).rounded(),
+            width: (currentVisibleRect.width * w).rounded(),
+            height: (currentVisibleRect.height * h).rounded()
+        ).intersection(CGRect(x: 0, y: 0, width: w, height: h))
+
+        guard cropRect.width > 0, cropRect.height > 0,
+              let cropped = cgImage.cropping(to: cropRect) else { return image }
+        return UIImage(cgImage: cropped)
+    }
+
     private func handleZoomChange(visibleRect: CGRect) {
+        currentVisibleRect = visibleRect
         zoomOCRTask?.cancel()
         zoomOCRTask = Task {
             try? await Task.sleep(for: .milliseconds(400))
@@ -342,7 +361,7 @@ struct ImportView: View {
         let croppedImage = UIImage(cgImage: cropped)
         isProcessing = true
         do {
-            let recognized = try await ocrService.recognizeTokens(from: croppedImage)
+            let recognized = try await ocrService.recognizeTokens(from: croppedImage, language: LanguageSettings().targetLanguage)
             allTokens = recognized
             selectedTokenIDs = Set(recognized.map(\.id))
         } catch {
@@ -356,17 +375,6 @@ struct ImportView: View {
         displayedImage = image
         allTokens = []
         selectedTokenIDs = []
-        isProcessing = true
-
-        do {
-            let recognized = try await ocrService.recognizeTokens(from: image)
-            allTokens = recognized
-            selectedTokenIDs = Set(recognized.map(\.id))
-        } catch {
-            // OCR failed silently
-        }
-
-        isProcessing = false
         captureImage = nil
         captureFilename = nil
     }
