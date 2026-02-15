@@ -12,6 +12,7 @@ struct ReviewView: View {
     @State private var showDictionary = false
 
     private let scheduler = ReviewScheduler()
+    private let langSettings = LanguageSettings()
     private let folder: Folder?
 
     init(folder: Folder? = nil) {
@@ -60,11 +61,6 @@ struct ReviewView: View {
                     }
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                Text(locale("review.due_count \(dueTerms.count)"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
         }
     }
 
@@ -98,7 +94,29 @@ struct ReviewView: View {
                             .padding(.horizontal)
                     }
 
-                    Text(term.posEnum.displayName)
+                    if !term.definition.isEmpty {
+                        Text(term.definition)
+                            .font(.subheadline)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+
+                    if !term.example.isEmpty {
+                        boldedExample(term.example, word: term.primary)
+                            .font(.subheadline)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+
+                        if !term.exampleTranslation.isEmpty {
+                            boldedExample(term.exampleTranslation, word: term.translation)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                        }
+                    }
+
+                    Text(term.posEnum.displayName(for: langSettings.nativeLanguage))
                         .font(.caption)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
@@ -165,5 +183,14 @@ struct ReviewView: View {
     private func advance() {
         showAnswer = false
         currentIndex += 1
+    }
+
+    private func boldedExample(_ sentence: String, word: String) -> Text {
+        guard !word.isEmpty else { return Text(sentence) }
+        guard let range = sentence.range(of: word, options: .caseInsensitive) else { return Text(sentence) }
+        let before = String(sentence[sentence.startIndex..<range.lowerBound])
+        let match = String(sentence[range])
+        let after = String(sentence[range.upperBound...])
+        return Text(before) + Text(match).bold() + Text(after)
     }
 }

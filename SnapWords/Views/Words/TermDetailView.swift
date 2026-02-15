@@ -8,6 +8,7 @@ struct TermDetailView: View {
     @State private var showFolderPicker = false
     @State private var showDictionary = false
     @State private var headerVisible = true
+    private let langSettings = LanguageSettings()
 
     var body: some View {
         ScrollView {
@@ -40,6 +41,7 @@ struct TermDetailView: View {
                             }
                         }
                     }
+
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.top, 16)
@@ -60,7 +62,7 @@ struct TermDetailView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .textCase(.uppercase)
-                        Text(term.posEnum.displayName)
+                        Text(term.posEnum.displayName(for: langSettings.nativeLanguage))
                             .font(.title3)
                             .fontWeight(.semibold)
                     }
@@ -104,6 +106,45 @@ struct TermDetailView: View {
                 Divider()
                     .padding(.horizontal)
 
+                // MARK: - Definition & Example
+                if !term.definition.isEmpty || !term.example.isEmpty || !term.exampleTranslation.isEmpty {
+                    VStack(alignment: .leading, spacing: 0) {
+                        if !term.definition.isEmpty {
+                            Text(term.definition)
+                                .font(.callout)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.vertical, 16)
+                                .padding(.horizontal)
+                        }
+
+                        if !term.definition.isEmpty && !term.example.isEmpty {
+                            Divider()
+                                .padding(.horizontal)
+                        }
+
+                        if !term.example.isEmpty {
+                            VStack(alignment: .leading, spacing: 2) {
+                                boldedExample(term.example, word: term.primary)
+                                    .font(.callout)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                if !term.exampleTranslation.isEmpty {
+                                    boldedExample(term.exampleTranslation, word: term.translation)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, 16)
+                            .padding(.horizontal)
+                        }
+                    }
+
+                    Divider()
+                        .padding(.horizontal)
+                }
+
                 // MARK: - Occurrences
                 let sorted = term.occurrences.sorted { $0.createdAt > $1.createdAt }
                 if !sorted.isEmpty {
@@ -136,5 +177,14 @@ struct TermDetailView: View {
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
         }
+    }
+
+    private func boldedExample(_ sentence: String, word: String) -> Text {
+        guard !word.isEmpty else { return Text(sentence) }
+        guard let range = sentence.range(of: word, options: .caseInsensitive) else { return Text(sentence) }
+        let before = String(sentence[sentence.startIndex..<range.lowerBound])
+        let match = String(sentence[range])
+        let after = String(sentence[range.upperBound...])
+        return Text(before) + Text(match).bold() + Text(after)
     }
 }

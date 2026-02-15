@@ -29,22 +29,17 @@ struct SettingsView: View {
                 }
             }
 
-            Section(locale("settings.data")) {
-                Button(role: .destructive) {
-                    showDeleteConfirmation = true
-                } label: {
-                    Label(locale("settings.delete_all"), systemImage: "trash")
-                }
-            }
-
             Section(locale("settings.about")) {
                 LabeledContent(locale("settings.version"), value: "1.0")
                 LabeledContent(locale("settings.data_storage"), value: locale("settings.local_only"))
             }
 
-            Section(locale("settings.export_import")) {
-                Text(locale("settings.coming_soon"))
-                    .foregroundStyle(.secondary)
+            Section(locale("settings.data")) {
+                Button(role: .destructive) {
+                    showDeleteConfirmation = true
+                } label: {
+                    Text(locale("settings.delete_all"))
+                }
             }
         }
         .navigationTitle(locale("settings.title"))
