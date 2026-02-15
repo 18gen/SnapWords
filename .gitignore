@@ -1,0 +1,35 @@
+# Xcode
+.DS_Store
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+# Build products
+DerivedData/
+build/
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.dSYM.tar.gz
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+
+# CocoaPods / Carthage (if you ever use them)
+Pods/
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# AppCode
+.idea/
+
+# SwiftPM Xcode workspace data
+*.xcodeproj/project.xcworkspace/xcuserdata/
