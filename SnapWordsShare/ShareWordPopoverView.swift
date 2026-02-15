@@ -54,28 +54,29 @@ struct ShareWordPopoverView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            // Translation (main focus)
+            // Word + translation
             VStack(spacing: 4) {
+                Text(primary)
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .multilineTextAlignment(.center)
+
                 if isTranslating {
                     ProgressView()
-                        .frame(height: 28)
+                        .frame(height: 20)
                 } else if isSameLanguage {
                     Button {
                         showDictionary = true
                     } label: {
                         Label("Look Up", systemImage: "book.fill")
-                            .font(.title3)
+                            .font(.subheadline)
                     }
                 } else {
                     Text(translationText.isEmpty ? "(no translation)" : translationText)
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(translationText.isEmpty ? .secondary : .primary)
+                        .font(.subheadline)
+                        .foregroundStyle(translationText.isEmpty ? .tertiary : .secondary)
                         .multilineTextAlignment(.center)
                 }
-                Text(primary)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 8)
