@@ -112,6 +112,8 @@ struct TermDetailView: View {
         }
         .sheet(isPresented: $showFolderPicker) {
             FolderPickerView(term: term)
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
         }
     }
 }
