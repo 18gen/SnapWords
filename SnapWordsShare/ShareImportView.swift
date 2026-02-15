@@ -41,17 +41,24 @@ struct ShareImportView: View {
                 .padding(.horizontal)
                 .padding(.top)
 
-                if isProcessing {
-                    ProgressView("Scanning text...")
-                        .padding()
-                }
-
                 if !allTokens.isEmpty {
                     ScrollView {
                         detectedWordsList
                             .padding(.vertical)
                     }
+                } else {
+                    VStack(spacing: 8) {
+                        Image(systemName: "text.viewfinder")
+                            .font(.system(size: 28))
+                            .foregroundStyle(.tertiary)
+                        Text("Scanning text...")
+                            .font(.subheadline)
+                            .foregroundStyle(.tertiary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+
+                Spacer(minLength: 0)
             }
             .navigationTitle("Import")
             .navigationBarTitleDisplayMode(.inline)

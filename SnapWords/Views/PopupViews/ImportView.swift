@@ -60,17 +60,24 @@ struct ImportView: View {
                 .padding(.horizontal)
                 .padding(.top)
 
-            if isProcessing {
-                ProgressView(locale("lens.scanning"))
-                    .padding()
-            }
-
             if !allTokens.isEmpty {
                 ScrollView {
                     detectedWordsList
                         .padding(.vertical)
                 }
+            } else if displayedImage != nil {
+                VStack(spacing: 8) {
+                    Image(systemName: "text.viewfinder")
+                        .font(.system(size: 28))
+                        .foregroundStyle(.tertiary)
+                    Text(locale("lens.scanning"))
+                        .font(.subheadline)
+                        .foregroundStyle(.tertiary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+
+            Spacer(minLength: 0)
         }
         .navigationTitle(locale("import.title"))
         .toolbar {
