@@ -10,6 +10,9 @@ public final class Term {
     public var pos: String
     @Attribute(originalName: "translationJa")
     public var translation: String
+    public var definition: String = ""
+    public var example: String = ""
+    public var exampleTranslation: String = ""
     public var articleMode: Bool
     public var reviewBox: Int
     public var dueDate: Date
@@ -27,6 +30,9 @@ public final class Term {
         lemma: String,
         pos: POS,
         translation: String = "",
+        definition: String = "",
+        example: String = "",
+        exampleTranslation: String = "",
         articleMode: Bool = false
     ) {
         self.id = UUID()
@@ -35,6 +41,9 @@ public final class Term {
         self.lemma = lemma
         self.pos = pos.rawValue
         self.translation = translation
+        self.definition = definition
+        self.example = example
+        self.exampleTranslation = exampleTranslation
         self.articleMode = articleMode
         self.reviewBox = 1
         self.dueDate = Date()

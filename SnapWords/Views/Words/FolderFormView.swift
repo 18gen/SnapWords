@@ -11,7 +11,7 @@ struct FolderFormView: View {
     var parentFolder: Folder?
 
     @State private var name: String = ""
-    @State private var selectedIcon: String = FolderConstants.icons[0]
+    @State private var selectedIcon: String = ""
     @State private var selectedColor: String = FolderConstants.colors[0]
     @State private var activeTab: PickerTab = .color
 
@@ -111,24 +111,8 @@ struct FolderFormView: View {
     // MARK: - Folder Preview
 
     private var folderPreview: some View {
-        let color = Color(hex: selectedColor)
-
-        return ZStack {
-            // Folder shape
-            FolderShape()
-                .fill(color)
-                .shadow(color: color.opacity(0.4), radius: 12, y: 6)
-
-            // Darker top flap overlay
-            FolderFlapShape()
-                .fill(color.opacity(0.15))
-
-            // Center icon
-            Image(systemName: selectedIcon)
-                .font(.system(size: 36, weight: .medium))
-                .foregroundStyle(.white.opacity(0.9))
-                .offset(y: 8)
-        }
+        FolderIcon(iconName: selectedIcon, colorHex: selectedColor, size: 120)
+            .shadow(color: Color(hex: selectedColor).opacity(0.3), radius: 12, y: 6)
     }
 
     // MARK: - Color Row
@@ -179,17 +163,24 @@ struct FolderFormView: View {
                             selectedIcon = icon
                         }
                     } label: {
-                        Image(systemName: icon)
-                            .font(.title3)
-                            .frame(width: 44, height: 44)
-                            .background(Color.clear)
-                            .overlay {
-                                if selectedIcon == icon {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .strokeBorder(Color(hex: selectedColor), lineWidth: 2)
-                                }
+                        Group {
+                            if icon.isEmpty {
+                                Image(systemName: "circle.slash")
+                                    .font(.title3)
+                            } else {
+                                Image(systemName: icon)
+                                    .font(.title3)
                             }
-                            .foregroundStyle(selectedIcon == icon ? Color(hex: selectedColor) : .secondary)
+                        }
+                        .frame(width: 44, height: 44)
+                        .background(Color.clear)
+                        .overlay {
+                            if selectedIcon == icon {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .strokeBorder(Color(hex: selectedColor), lineWidth: 2)
+                            }
+                        }
+                        .foregroundStyle(selectedIcon == icon ? Color(hex: selectedColor) : .secondary)
                     }
                     .buttonStyle(.plain)
                 }

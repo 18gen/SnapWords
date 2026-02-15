@@ -15,7 +15,7 @@ public enum FolderConstants {
     // MARK: - Icons
 
     public static let icons: [String] = [
-        "folder.fill",
+        "",              // None (no icon)
         "book.fill",
         "star.fill",
         "heart.fill",
@@ -42,15 +42,15 @@ public enum FolderConstants {
     ]
 
     public static let colors: [String] = [
-        "#007AFF", // Blue
-        "#FF3B30", // Red
-        "#FF9500", // Orange
-        "#FFCC00", // Yellow
-        "#34C759", // Green
-        "#5856D6", // Purple
-        "#AF52DE", // Violet
-        "#FF2D55", // Pink
-        "#00C7BE", // Teal
-        "#8E8E93", // Gray
+        "#6B7B8D", // Gray-blue
+        "#4A7FBD", // Muted blue
+        "#C75450", // Muted red
+        "#D4864A", // Muted orange
+        "#C4A94D", // Muted gold
+        "#5A9E6F", // Muted green
+        "#7B6BA5", // Muted purple
+        "#9B6BB5", // Muted violet
+        "#C74E6E", // Muted rose
+        "#4EA8A2", // Muted teal
     ]
 }

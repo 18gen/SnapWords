@@ -22,8 +22,8 @@ public final class Folder {
     public init(
         id: UUID = UUID(),
         name: String,
-        iconName: String = "folder.fill",
-        colorHex: String = "#007AFF",
+        iconName: String = "",
+        colorHex: String = "#6B7B8D",
         isSystem: Bool = false,
         parent: Folder? = nil
     ) {

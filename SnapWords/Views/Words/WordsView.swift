@@ -132,6 +132,7 @@ struct WordsView: View {
             NavigationLink(value: folder) {
                 FolderRow(folder: folder)
             }
+            .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
         }
         .onDelete(perform: deleteFolders)
     }

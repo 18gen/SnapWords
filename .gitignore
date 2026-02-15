@@ -33,3 +33,6 @@ fastlane/test_output
 
 # SwiftPM Xcode workspace data
 *.xcodeproj/project.xcworkspace/xcuserdata/
+
+# API keys
+**/Secrets.swift
