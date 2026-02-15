@@ -1,24 +1,37 @@
-//
-//  ContentView.swift
-//  SnapWords
-//
-//  Created by Gen Ichihashi on 2026-02-14.
-//
-
 import SwiftUI
+import UIKit
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
+    @Binding var captureImage: UIImage?
+    @Binding var captureFilename: String?
+    @Environment(AppLocale.self) private var locale
+    @State private var selectedTab = 0
 
-#Preview {
-    ContentView()
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            Tab(locale("tab.words"), systemImage: "textformat.abc", value: 0) {
+                WordsTabView(
+                    captureImage: $captureImage,
+                    captureFilename: $captureFilename
+                )
+            }
+
+            Tab(locale("tab.review"), systemImage: "rectangle.stack", value: 1) {
+                NavigationStack {
+                    ReviewView()
+                }
+            }
+
+            Tab(locale("tab.settings"), systemImage: "gear", value: 2) {
+                NavigationStack {
+                    SettingsView()
+                }
+            }
+        }
+        .onChange(of: captureImage) { _, newValue in
+            if newValue != nil {
+                selectedTab = 0
+            }
+        }
+    }
 }
