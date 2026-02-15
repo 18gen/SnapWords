@@ -6,18 +6,30 @@ struct TermDetailView: View {
     @Bindable var term: Term
     @Environment(AppLocale.self) private var locale
     @State private var showFolderPicker = false
+    @State private var headerVisible = true
 
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                // MARK: - Translation
-                Text(term.translationJa.isEmpty ? locale("detail.no_translation") : term.translationJa)
-                    .font(.title3)
-                    .foregroundStyle(term.translationJa.isEmpty ? .secondary : .primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, 4)
-                    .padding(.bottom, 16)
-                    .padding(.horizontal)
+                // MARK: - Header
+                VStack(spacing: 6) {
+                    Text(term.primary)
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .multilineTextAlignment(.center)
+
+                    Text(term.translationJa.isEmpty ? locale("detail.no_translation") : term.translationJa)
+                        .font(.title3)
+                        .foregroundStyle(term.translationJa.isEmpty ? .secondary : .primary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 16)
+                .padding(.bottom, 20)
+                .padding(.horizontal)
+                .onScrollVisibilityChange { visible in
+                    headerVisible = visible
+                }
 
                 Divider()
                     .padding(.horizontal)
@@ -89,7 +101,15 @@ struct TermDetailView: View {
             .padding(.bottom, 24)
         }
         .navigationTitle(term.primary)
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text(term.primary)
+                    .font(.headline)
+                    .opacity(headerVisible ? 0 : 1)
+                    .animation(.easeInOut(duration: 0.2), value: headerVisible)
+            }
+        }
         .sheet(isPresented: $showFolderPicker) {
             FolderPickerView(term: term)
         }
