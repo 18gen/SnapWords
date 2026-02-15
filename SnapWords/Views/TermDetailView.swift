@@ -10,22 +10,14 @@ struct TermDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                // MARK: - Header
-                VStack(spacing: 6) {
-                    Text(term.primary)
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.center)
-
-                    Text(term.translationJa.isEmpty ? locale("detail.no_translation") : term.translationJa)
-                        .font(.title3)
-                        .foregroundStyle(term.translationJa.isEmpty ? .secondary : .primary)
-                        .multilineTextAlignment(.center)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 16)
-                .padding(.bottom, 20)
-                .padding(.horizontal)
+                // MARK: - Translation
+                Text(term.translationJa.isEmpty ? locale("detail.no_translation") : term.translationJa)
+                    .font(.title3)
+                    .foregroundStyle(term.translationJa.isEmpty ? .secondary : .primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 4)
+                    .padding(.bottom, 16)
+                    .padding(.horizontal)
 
                 Divider()
                     .padding(.horizontal)
@@ -97,7 +89,7 @@ struct TermDetailView: View {
             .padding(.bottom, 24)
         }
         .navigationTitle(term.primary)
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
         .sheet(isPresented: $showFolderPicker) {
             FolderPickerView(term: term)
         }

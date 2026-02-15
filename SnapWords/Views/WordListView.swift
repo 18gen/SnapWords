@@ -42,9 +42,7 @@ struct WordListView: View {
             if !sortedChildren.isEmpty && searchText.isEmpty {
                 Section(locale("folders.subfolders")) {
                     ForEach(sortedChildren) { child in
-                        NavigationLink {
-                            WordListView(folder: child)
-                        } label: {
+                        NavigationLink(value: child) {
                             FolderRow(folder: child)
                         }
                     }

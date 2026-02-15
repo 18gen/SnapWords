@@ -101,6 +101,9 @@ struct WordsTabView: View {
         .navigationDestination(for: Term.self) { term in
             TermDetailView(term: term)
         }
+        .navigationDestination(for: Folder.self) { folder in
+            WordListView(folder: folder)
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 4) {
@@ -138,9 +141,7 @@ struct WordsTabView: View {
     @ViewBuilder
     private var folderModeContent: some View {
         ForEach(topLevelFolders) { folder in
-            NavigationLink {
-                WordListView(folder: folder)
-            } label: {
+            NavigationLink(value: folder) {
                 FolderRow(folder: folder)
             }
         }
@@ -166,9 +167,7 @@ struct WordsTabView: View {
         if !matchingFolders.isEmpty {
             Section(locale("words.folders_section")) {
                 ForEach(matchingFolders) { folder in
-                    NavigationLink {
-                        WordListView(folder: folder)
-                    } label: {
+                    NavigationLink(value: folder) {
                         FolderRow(folder: folder)
                     }
                 }
