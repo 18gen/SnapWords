@@ -1,0 +1,127 @@
+/* Tabs */
+"tab.words" = "Words";
+"tab.review" = "Review";
+"tab.settings" = "Settings";
+
+/* Import */
+"import.title" = "Import";
+"import.tap_camera" = "Tap to start camera";
+"import.choose_photo" = "Photos";
+"import.camera" = "Camera";
+"import.detected_words" = "Detected Words";
+"import.select_all" = "Select All";
+"import.deselect_all" = "Deselect All";
+
+/* Menu */
+"menu.scan_photo" = "Scan Photo";
+"menu.new_folder" = "New Folder";
+"menu.new_subfolder" = "New Subfolder";
+
+/* Term List */
+"words.title" = "Words";
+"words.search" = "Search folders and words...";
+"words.empty.title" = "No Words Yet";
+"words.empty.description" = "Tap + to capture words from a photo.";
+"words.due" = "Due";
+"words.all" = "All";
+"words.all_words" = "All Words";
+"words.word_count %lld" = "%lld word(s)";
+"words.folders_section" = "Folders";
+"words.occurrences %lld" = "%lld occurrence(s)";
+"words.add_words" = "Add Words";
+
+/* Capture */
+"capture.title" = "Capture";
+"capture.pick_photo" = "Choose from Photos";
+"capture.recent" = "Recent Screenshots";
+"capture.empty" = "No pending screenshots";
+
+/* Screenshot Lens */
+"lens.title" = "SnapWords";
+"lens.scanning" = "Scanning text...";
+
+/* Word Popover */
+"word.save_title" = "Save Word";
+"word.raw_text" = "Raw Text";
+"word.study_form" = "Study Form";
+"word.lemma" = "Lemma";
+"word.pos" = "Part of Speech";
+"word.phrase" = "Phrase";
+"word.phrase_placeholder" = "e.g. carry out";
+"word.translation" = "Translation";
+"word.translate" = "Translate";
+"word.add_article" = "Add article (a/an)";
+"word.cancel" = "Cancel";
+"word.save" = "Save";
+"word.folders" = "Folders";
+
+/* Review */
+"review.title" = "Review";
+"review.all_done.title" = "All Caught Up";
+"review.all_done.description" = "No words due for review. Keep reading!";
+"review.session_complete" = "Session Complete!";
+"review.reviewed_count %lld" = "You reviewed %lld word(s).";
+"review.start_over" = "Start Over";
+"review.show_answer" = "Show Answer";
+"review.again" = "Again";
+"review.got_it" = "Got It";
+"review.due_count %lld" = "%lld due";
+"review.no_translation" = "(no translation)";
+"review.close" = "Close";
+
+/* Folders */
+"folders.empty" = "No Folders";
+"folders.empty_description" = "Create a folder to organize your words.";
+"folders.word_count %lld" = "%lld word(s)";
+"folders.review" = "Review Due Words";
+"folders.due_count %lld" = "%lld due";
+"folders.words" = "Words";
+"folders.no_words" = "No words in this folder.";
+"folders.subfolders" = "Subfolders";
+"folders.subfolders_count %lld" = "%lld subfolder(s)";
+"folder.unfiled" = "Unfiled";
+
+/* Folder Form */
+"folder_form.new_title" = "New Folder";
+"folder_form.edit_title" = "Edit Folder";
+"folder_form.preview" = "Preview";
+"folder_form.untitled" = "Untitled";
+"folder_form.name" = "Name";
+"folder_form.name_placeholder" = "Folder name";
+"folder_form.icon" = "Icon";
+"folder_form.color" = "Color";
+"folder_form.cancel" = "Cancel";
+"folder_form.save" = "Save";
+
+/* Folder Picker */
+"folder_picker.title" = "Change Folder";
+"folder_picker.done" = "Done";
+"folder_picker.empty" = "No Folders";
+"folder_picker.empty_description" = "Create folders from the Words tab to organize your terms.";
+
+/* Term Detail */
+"detail.pos" = "POS";
+"detail.no_translation" = "(no translation)";
+"detail.folder" = "Folder";
+"detail.no_folder" = "Not in any folder.";
+"detail.change_folder" = "Change Folder";
+"detail.occurrences %lld" = "Occurrences (%lld)";
+
+/* Settings */
+"settings.title" = "Settings";
+"settings.language" = "Language";
+"settings.native_language" = "Native Language";
+"settings.translate_language" = "Translate Language";
+"settings.data" = "Data";
+"settings.delete_all" = "Delete All Data";
+"settings.delete_confirm_title" = "Delete All Data?";
+"settings.delete_confirm_message" = "This will permanently delete all saved words, folders, occurrences, and screenshot files. This action cannot be undone.";
+"settings.delete_confirm_button" = "Delete Everything";
+"settings.deleted" = "Deleted";
+"settings.deleted_message" = "All data has been deleted.";
+"settings.about" = "About";
+"settings.version" = "Version";
+"settings.data_storage" = "Data";
+"settings.local_only" = "Local only";
+"settings.export_import" = "Export / Import";
+"settings.coming_soon" = "Coming soon";

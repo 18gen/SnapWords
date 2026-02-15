@@ -1,0 +1,127 @@
+/* Tabs */
+"tab.words" = "単語";
+"tab.review" = "復習";
+"tab.settings" = "設定";
+
+/* Import */
+"import.title" = "取り込み";
+"import.tap_camera" = "タップしてカメラを起動";
+"import.choose_photo" = "写真";
+"import.camera" = "カメラ";
+"import.detected_words" = "検出された単語";
+"import.select_all" = "すべて選択";
+"import.deselect_all" = "すべて解除";
+
+/* Menu */
+"menu.scan_photo" = "写真をスキャン";
+"menu.new_folder" = "新規フォルダ";
+"menu.new_subfolder" = "新規サブフォルダ";
+
+/* Term List */
+"words.title" = "単語";
+"words.search" = "フォルダと単語を検索...";
+"words.empty.title" = "単語がありません";
+"words.empty.description" = "+ をタップして写真から単語を取り込みましょう。";
+"words.due" = "復習";
+"words.all" = "すべて";
+"words.all_words" = "すべての単語";
+"words.word_count %lld" = "%lld 語";
+"words.folders_section" = "フォルダ";
+"words.occurrences %lld" = "%lld 件";
+"words.add_words" = "単語を追加";
+
+/* Capture */
+"capture.title" = "キャプチャ";
+"capture.pick_photo" = "写真から選択";
+"capture.recent" = "最近のスクリーンショット";
+"capture.empty" = "保留中のスクリーンショットはありません";
+
+/* Screenshot Lens */
+"lens.title" = "SnapWords";
+"lens.scanning" = "テキストをスキャン中...";
+
+/* Word Popover */
+"word.save_title" = "単語を保存";
+"word.raw_text" = "元のテキスト";
+"word.study_form" = "学習形";
+"word.lemma" = "原形";
+"word.pos" = "品詞";
+"word.phrase" = "フレーズ";
+"word.phrase_placeholder" = "例: carry out";
+"word.translation" = "翻訳";
+"word.translate" = "翻訳する";
+"word.add_article" = "冠詞を追加 (a/an)";
+"word.cancel" = "キャンセル";
+"word.save" = "保存";
+"word.folders" = "フォルダ";
+
+/* Review */
+"review.title" = "復習";
+"review.all_done.title" = "全て完了";
+"review.all_done.description" = "復習する単語はありません。読書を続けましょう！";
+"review.session_complete" = "セッション完了！";
+"review.reviewed_count %lld" = "%lld 語を復習しました。";
+"review.start_over" = "もう一度";
+"review.show_answer" = "答えを見る";
+"review.again" = "もう一度";
+"review.got_it" = "覚えた";
+"review.due_count %lld" = "%lld 件";
+"review.no_translation" = "(翻訳なし)";
+"review.close" = "閉じる";
+
+/* Folders */
+"folders.empty" = "フォルダがありません";
+"folders.empty_description" = "フォルダを作成して単語を整理しましょう。";
+"folders.word_count %lld" = "%lld 語";
+"folders.review" = "復習する";
+"folders.due_count %lld" = "%lld 件";
+"folders.words" = "単語";
+"folders.no_words" = "このフォルダに単語はありません。";
+"folders.subfolders" = "サブフォルダ";
+"folders.subfolders_count %lld" = "%lld サブフォルダ";
+"folder.unfiled" = "未分類";
+
+/* Folder Form */
+"folder_form.new_title" = "新規フォルダ";
+"folder_form.edit_title" = "フォルダを編集";
+"folder_form.preview" = "プレビュー";
+"folder_form.untitled" = "無題";
+"folder_form.name" = "名前";
+"folder_form.name_placeholder" = "フォルダ名";
+"folder_form.icon" = "アイコン";
+"folder_form.color" = "カラー";
+"folder_form.cancel" = "キャンセル";
+"folder_form.save" = "保存";
+
+/* Folder Picker */
+"folder_picker.title" = "フォルダを変更";
+"folder_picker.done" = "完了";
+"folder_picker.empty" = "フォルダがありません";
+"folder_picker.empty_description" = "単語タブからフォルダを作成して整理しましょう。";
+
+/* Term Detail */
+"detail.pos" = "品詞";
+"detail.no_translation" = "(翻訳なし)";
+"detail.folder" = "フォルダ";
+"detail.no_folder" = "フォルダに未登録です。";
+"detail.change_folder" = "フォルダを変更";
+"detail.occurrences %lld" = "出現 (%lld)";
+
+/* Settings */
+"settings.title" = "設定";
+"settings.language" = "言語";
+"settings.native_language" = "母語";
+"settings.translate_language" = "翻訳言語";
+"settings.data" = "データ";
+"settings.delete_all" = "全データを削除";
+"settings.delete_confirm_title" = "全データを削除しますか？";
+"settings.delete_confirm_message" = "保存された全ての単語、フォルダ、出現記録、スクリーンショットファイルが完全に削除されます。この操作は元に戻せません。";
+"settings.delete_confirm_button" = "全て削除";
+"settings.deleted" = "削除完了";
+"settings.deleted_message" = "全てのデータが削除されました。";
+"settings.about" = "情報";
+"settings.version" = "バージョン";
+"settings.data_storage" = "データ";
+"settings.local_only" = "ローカルのみ";
+"settings.export_import" = "エクスポート / インポート";
+"settings.coming_soon" = "近日公開";
