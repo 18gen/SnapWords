@@ -1,11 +1,30 @@
 import UIKit
 import Vision
+import NaturalLanguage
 
 public struct OCRService: Sendable {
     public init() {}
 
+    /// Map a two-letter language code to Vision recognition language identifiers.
+    private static func visionLanguages(for code: String) -> [String] {
+        switch code {
+        case "ja": return ["ja-JP"]
+        case "en": return ["en-US"]
+        default: return ["en-US"]
+        }
+    }
+
+    /// Check if a word is likely a personal name (Latin-script words only).
+    private static func isPersonalName(_ text: String) -> Bool {
+        guard let first = text.first, first.isUppercase, first.isASCII else { return false }
+        let tagger = NLTagger(tagSchemes: [.nameType])
+        tagger.string = text
+        let (tag, _) = tagger.tag(at: text.startIndex, unit: .word, scheme: .nameType)
+        return tag == .personalName
+    }
+
     /// Fast recognition from a CVPixelBuffer (for live camera frames). Uses `.fast` level.
-    public func recognizeTokens(from pixelBuffer: CVPixelBuffer) async throws -> [RecognizedToken] {
+    public func recognizeTokens(from pixelBuffer: CVPixelBuffer, language: String = "en") async throws -> [RecognizedToken] {
         let imageWidth = CGFloat(CVPixelBufferGetWidth(pixelBuffer))
         let imageHeight = CGFloat(CVPixelBufferGetHeight(pixelBuffer))
 
@@ -23,7 +42,7 @@ public struct OCRService: Sendable {
                 continuation.resume(returning: tokens)
             }
             request.recognitionLevel = .fast
-            request.recognitionLanguages = ["en-US"]
+            request.recognitionLanguages = Self.visionLanguages(for: language)
             request.usesLanguageCorrection = false
 
             let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .right, options: [:])
@@ -36,7 +55,7 @@ public struct OCRService: Sendable {
     }
 
     /// Accurate recognition from a UIImage. Uses `.accurate` level.
-    public func recognizeTokens(from image: UIImage) async throws -> [RecognizedToken] {
+    public func recognizeTokens(from image: UIImage, language: String = "en") async throws -> [RecognizedToken] {
         guard let cgImage = image.cgImage else {
             return []
         }
@@ -59,7 +78,7 @@ public struct OCRService: Sendable {
             }
 
             request.recognitionLevel = .accurate
-            request.recognitionLanguages = ["en-US"]
+            request.recognitionLanguages = Self.visionLanguages(for: language)
             request.usesLanguageCorrection = true
 
             let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
@@ -112,7 +131,8 @@ public struct OCRService: Sendable {
                 if words.count <= 1 {
                     let cleaned = cleanWord(fullText)
                     guard !cleaned.isEmpty,
-                          cleaned.rangeOfCharacter(from: .letters) != nil else { continue }
+                          cleaned.rangeOfCharacter(from: .letters) != nil,
+                          isValidWord(cleaned) else { continue }
 
                     let box = observation.boundingBox
                     let imageRect = CGRect(
@@ -145,7 +165,8 @@ public struct OCRService: Sendable {
                         defer { charOffset += wordStr.count + 1 }
 
                         guard !cleaned.isEmpty,
-                              cleaned.rangeOfCharacter(from: .letters) != nil else { continue }
+                              cleaned.rangeOfCharacter(from: .letters) != nil,
+                              isValidWord(cleaned) else { continue }
 
                         let startFraction = CGFloat(charOffset) / CGFloat(totalCharCount)
                         let widthFraction = CGFloat(wordStr.count) / CGFloat(totalCharCount)
@@ -177,6 +198,18 @@ public struct OCRService: Sendable {
         }
 
         return tokens
+    }
+
+    /// Check if a cleaned word is worth keeping as a vocabulary token.
+    private static func isValidWord(_ text: String) -> Bool {
+        // Skip single ASCII characters (e.g. "a", "C", "I")
+        // but allow single CJK characters which can be valid words
+        if text.count <= 1 && text.allSatisfy({ $0.isASCII }) { return false }
+
+        // Skip personal names (e.g. "Tony", "Sarah")
+        if isPersonalName(text) { return false }
+
+        return true
     }
 
     /// Strip leading/trailing punctuation and symbols from a word.

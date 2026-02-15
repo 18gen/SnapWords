@@ -8,11 +8,15 @@ public struct NormalizationService: Sendable {
         lemma: String,
         pos: POS,
         articleMode: Bool = false,
-        phraseText: String? = nil
+        phraseText: String? = nil,
+        language: String = "en"
     ) -> String {
         let baseLemma = lemma.lowercased()
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .trimmingCharacters(in: .punctuationCharacters)
+
+        // Non-English: return the lemma as-is without English prefixes
+        guard language == "en" else { return baseLemma }
 
         switch pos {
         case .verb:

@@ -44,7 +44,6 @@ struct ZoomableImageView: UIViewRepresentable {
         override func layoutSubviews() {
             super.layoutSubviews()
             guard let imageView else { return }
-            // Fill width: image width = scroll view width, height scaled proportionally
             if let image = imageView.image, image.size.width > 0 {
                 let scale = bounds.width / image.size.width
                 let imageH = image.size.height * scale

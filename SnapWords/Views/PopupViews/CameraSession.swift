@@ -103,8 +103,9 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
             session.lastOCRDate = now
 
             let ocrService = OCRService()
+            let ocrLanguage = LanguageSettings().targetLanguage
             do {
-                let tokens = try await ocrService.recognizeTokens(from: pixelBuffer)
+                let tokens = try await ocrService.recognizeTokens(from: pixelBuffer, language: ocrLanguage)
                 session.latestTokens = tokens
                 session.onTokensUpdated?(tokens)
             } catch {

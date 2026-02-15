@@ -1,4 +1,6 @@
 import UIKit
+import SwiftUI
+import SwiftData
 import UniformTypeIdentifiers
 import LensCore
 
@@ -53,36 +55,38 @@ class ShareViewController: UIViewController {
                 return
             }
 
-            let service = PendingImageService()
-            let filename = try service.savePending(image: image)
-
-            guard let encoded = filename.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                  let url = URL(string: "snapwords://capture?image=\(encoded)") else {
-                close()
-                return
-            }
-
-            openContainingApp(url: url)
-            // Give the URL open time to fire before completing the extension
-            try? await Task.sleep(for: .milliseconds(500))
+            showImportView(image: image)
         } catch {
-            // Failed to save; just close
+            close()
         }
-
-        close()
     }
 
     @MainActor
-    private func openContainingApp(url: URL) {
-        // Use the simpler openURL: selector which is more reliable in extensions
-        let selector = sel_registerName("openURL:")
-        var responder: UIResponder? = self as UIResponder
-        while let current = responder {
-            if current.responds(to: selector) {
-                current.perform(selector, with: url)
-                return
+    private func showImportView(image: UIImage) {
+        // Remove spinner
+        view.subviews.forEach { $0.removeFromSuperview() }
+
+        do {
+            let container = try SharedModelContainer.create()
+
+            let importView = ShareImportView(image: image) { [weak self] in
+                self?.close()
             }
-            responder = current.next
+            .modelContainer(container)
+
+            let hostingController = UIHostingController(rootView: importView)
+            addChild(hostingController)
+            hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(hostingController.view)
+            NSLayoutConstraint.activate([
+                hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
+                hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            ])
+            hostingController.didMove(toParent: self)
+        } catch {
+            close()
         }
     }
 

@@ -8,6 +8,7 @@ struct SnapWordsApp: App {
     @State private var captureImage: UIImage?
     @State private var captureFilename: String?
     @State private var appLocale = AppLocale()
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         do {
@@ -29,6 +30,11 @@ struct SnapWordsApp: App {
             .onOpenURL { url in
                 handleURL(url)
             }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    checkPendingImages()
+                }
+            }
         }
         .modelContainer(modelContainer)
     }
@@ -45,6 +51,19 @@ struct SnapWordsApp: App {
         if let image = service.loadPending(filename: filename) {
             captureImage = image
             captureFilename = filename
+            service.removePending(filename: filename)
         }
+    }
+
+    /// Fallback: pick up any pending images left by the share extension
+    /// when the app comes to foreground (in case the URL open failed).
+    private func checkPendingImages() {
+        guard captureImage == nil else { return }
+        let service = PendingImageService()
+        guard let filename = service.listPending().first,
+              let image = service.loadPending(filename: filename) else { return }
+        captureImage = image
+        captureFilename = filename
+        service.removePending(filename: filename)
     }
 }
