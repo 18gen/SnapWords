@@ -15,7 +15,6 @@ struct WordsView: View {
     @State private var importConfig: ImportSheetConfig?
     @State private var showNewFolder = false
     @State private var searchText = ""
-    @State private var isFlatMode = false
     @State private var showPhotoPicker = false
     @State private var pickerItem: PhotosPickerItem?
 
@@ -37,7 +36,7 @@ struct WordsView: View {
         return allTerms.filter {
             $0.primary.lowercased().contains(query) ||
             $0.lemma.lowercased().contains(query) ||
-            $0.translationJa.contains(query) ||
+            $0.translation.contains(query) ||
             ($0.folder?.name.lowercased().contains(query) == true)
         }
     }
@@ -83,8 +82,6 @@ struct WordsView: View {
         return List {
             if isSearching {
                 searchResultsContent
-            } else if isFlatMode {
-                flatModeContent
             } else {
                 folderModeContent
             }
@@ -106,16 +103,7 @@ struct WordsView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: 4) {
-                    Button {
-                        isFlatMode.toggle()
-                    } label: {
-                        Image(systemName: isFlatMode ? "list.bullet" : "folder")
-                            .foregroundStyle(isFlatMode ? Color.accentColor : Color.secondary)
-                    }
-
-                    addMenuButton
-                }
+                addMenuButton
             }
         }
     }
@@ -146,18 +134,6 @@ struct WordsView: View {
             }
         }
         .onDelete(perform: deleteFolders)
-    }
-
-    // MARK: - Flat Mode
-
-    @ViewBuilder
-    private var flatModeContent: some View {
-        ForEach(allTerms) { term in
-            NavigationLink(value: term) {
-                FlatTermRow(term: term)
-            }
-        }
-        .onDelete(perform: deleteTermsFlat)
     }
 
     // MARK: - Search Results
@@ -231,12 +207,6 @@ struct WordsView: View {
             let folder = topLevelFolders[index]
             guard !folder.isSystem else { continue }
             safeDeleteFolder(folder, unfiledID: unfiledID)
-        }
-    }
-
-    private func deleteTermsFlat(at offsets: IndexSet) {
-        for index in offsets {
-            modelContext.delete(allTerms[index])
         }
     }
 
