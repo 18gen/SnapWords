@@ -1,7 +1,6 @@
 import Foundation
 
 public struct LanguageSettings: Sendable {
-    private static let sourceKey = "snapwords_source_language"
     private static let targetKey = "snapwords_target_language"
 
     private var defaults: UserDefaults? {
@@ -10,13 +9,18 @@ public struct LanguageSettings: Sendable {
 
     public init() {}
 
-    public var sourceLanguage: String {
-        get { defaults?.string(forKey: Self.sourceKey) ?? "en" }
-        nonmutating set { defaults?.set(newValue, forKey: Self.sourceKey) }
+    public var nativeLanguage: String {
+        Locale.current.language.languageCode?.identifier ?? "en"
     }
 
     public var targetLanguage: String {
-        get { defaults?.string(forKey: Self.targetKey) ?? "ja" }
+        get {
+            if let saved = defaults?.string(forKey: Self.targetKey) {
+                return saved
+            }
+            let native = nativeLanguage
+            return Self.supportedLanguages.first { $0.code != native }?.code ?? "en"
+        }
         nonmutating set { defaults?.set(newValue, forKey: Self.targetKey) }
     }
 

@@ -54,6 +54,7 @@
 "word.cancel" = "キャンセル";
 "word.save" = "保存";
 "word.folders" = "フォルダ";
+"word.look_up" = "辞書で調べる";
 
 /* Review */
 "review.title" = "復習";

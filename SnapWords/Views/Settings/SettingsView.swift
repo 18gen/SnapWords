@@ -7,39 +7,20 @@ struct SettingsView: View {
     @Environment(AppLocale.self) private var locale
     @State private var showDeleteConfirmation = false
     @State private var showDeletedAlert = false
-    @State private var nativeLanguage: String
     @State private var targetLanguage: String
 
     private let langSettings = LanguageSettings()
 
     init() {
         let settings = LanguageSettings()
-        _nativeLanguage = State(initialValue: settings.sourceLanguage)
         _targetLanguage = State(initialValue: settings.targetLanguage)
     }
 
     var body: some View {
         Form {
             Section(locale("settings.language")) {
-                Picker(locale("settings.native_language"), selection: $nativeLanguage) {
-                    ForEach(LanguageSettings.supportedLanguages, id: \.code) { lang in
-                        Text(lang.name).tag(lang.code)
-                    }
-                }
-                .onChange(of: nativeLanguage) { _, newValue in
-                    langSettings.sourceLanguage = newValue
-                    locale.update(to: newValue)
-                    if targetLanguage == newValue {
-                        let other = LanguageSettings.supportedLanguages.first { $0.code != newValue }
-                        if let other {
-                            targetLanguage = other.code
-                            langSettings.targetLanguage = other.code
-                        }
-                    }
-                }
-
                 Picker(locale("settings.translate_language"), selection: $targetLanguage) {
-                    ForEach(LanguageSettings.supportedLanguages.filter({ $0.code != nativeLanguage }), id: \.code) { lang in
+                    ForEach(LanguageSettings.supportedLanguages, id: \.code) { lang in
                         Text(lang.name).tag(lang.code)
                     }
                 }

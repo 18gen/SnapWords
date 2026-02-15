@@ -9,6 +9,7 @@ struct ReviewView: View {
     @Query(sort: \Term.dueDate) private var allTerms: [Term]
     @State private var currentIndex = 0
     @State private var showAnswer = false
+    @State private var showDictionary = false
 
     private let scheduler = ReviewScheduler()
     private let folder: Folder?
@@ -82,11 +83,20 @@ struct ReviewView: View {
                 VStack(spacing: 12) {
                     Divider()
 
-                    Text(term.translationJa.isEmpty ? locale("review.no_translation") : term.translationJa)
-                        .font(.title2)
-                        .foregroundStyle(term.translationJa.isEmpty ? .secondary : .primary)
-                        .multilineTextAlignment(.center)
+                    if term.translation.isEmpty {
+                        Button {
+                            showDictionary = true
+                        } label: {
+                            Label(locale("word.look_up"), systemImage: "book.fill")
+                                .font(.title2)
+                        }
                         .padding(.horizontal)
+                    } else {
+                        Text(term.translation)
+                            .font(.title2)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
 
                     Text(term.posEnum.displayName)
                         .font(.caption)
@@ -135,6 +145,11 @@ struct ReviewView: View {
             }
         }
         .padding(.bottom, 32)
+        .sheet(isPresented: $showDictionary) {
+            if currentIndex < dueTerms.count {
+                DictionaryView(term: dueTerms[currentIndex].primary)
+            }
+        }
     }
 
     private func markGotIt(_ term: Term) {

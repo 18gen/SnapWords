@@ -3,14 +3,13 @@ import SwiftData
 import LensCore
 import Translation
 
-struct WordPopoverView: View {
+struct ShareWordPopoverView: View {
     let token: RecognizedToken
     let allTokens: [RecognizedToken]
     let image: UIImage
     let onSave: () -> Void
     let onCancel: () -> Void
 
-    @Environment(AppLocale.self) private var locale
     @State private var primary: String
     @State private var translationText: String = ""
     @State private var isSaving = false
@@ -64,11 +63,11 @@ struct WordPopoverView: View {
                     Button {
                         showDictionary = true
                     } label: {
-                        Label(locale("word.look_up"), systemImage: "book.fill")
+                        Label("Look Up", systemImage: "book.fill")
                             .font(.title3)
                     }
                 } else {
-                    Text(translationText.isEmpty ? locale("review.no_translation") : translationText)
+                    Text(translationText.isEmpty ? "(no translation)" : translationText)
                         .font(.title2)
                         .fontWeight(.semibold)
                         .foregroundStyle(translationText.isEmpty ? .secondary : .primary)
@@ -118,7 +117,7 @@ struct WordPopoverView: View {
                 Button {
                     onCancel()
                 } label: {
-                    Text(locale("word.cancel"))
+                    Text("Cancel")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
@@ -126,7 +125,7 @@ struct WordPopoverView: View {
                 Button {
                     Task { await save() }
                 } label: {
-                    Text(locale("word.save"))
+                    Text("Save")
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
                 }

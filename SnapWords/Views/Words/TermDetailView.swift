@@ -6,6 +6,7 @@ struct TermDetailView: View {
     @Bindable var term: Term
     @Environment(AppLocale.self) private var locale
     @State private var showFolderPicker = false
+    @State private var showDictionary = false
     @State private var headerVisible = true
 
     var body: some View {
@@ -18,10 +19,27 @@ struct TermDetailView: View {
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
 
-                    Text(term.translationJa.isEmpty ? locale("detail.no_translation") : term.translationJa)
-                        .font(.title3)
-                        .foregroundStyle(term.translationJa.isEmpty ? .secondary : .primary)
-                        .multilineTextAlignment(.center)
+                    if term.translation.isEmpty {
+                        Button {
+                            showDictionary = true
+                        } label: {
+                            Label(locale("word.look_up"), systemImage: "book.fill")
+                                .font(.title3)
+                        }
+                    } else {
+                        HStack(spacing: 8) {
+                            Text(term.translation)
+                                .font(.title3)
+                                .multilineTextAlignment(.center)
+                            Button {
+                                showDictionary = true
+                            } label: {
+                                Image(systemName: "book")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.top, 16)
@@ -109,6 +127,9 @@ struct TermDetailView: View {
                     .opacity(headerVisible ? 0 : 1)
                     .animation(.easeInOut(duration: 0.2), value: headerVisible)
             }
+        }
+        .sheet(isPresented: $showDictionary) {
+            DictionaryView(term: term.primary)
         }
         .sheet(isPresented: $showFolderPicker) {
             FolderPickerView(term: term)

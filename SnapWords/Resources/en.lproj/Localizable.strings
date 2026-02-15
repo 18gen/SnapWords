@@ -54,6 +54,7 @@
 "word.cancel" = "Cancel";
 "word.save" = "Save";
 "word.folders" = "Folders";
+"word.look_up" = "Look Up";
 
 /* Review */
 "review.title" = "Review";

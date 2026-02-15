@@ -33,7 +33,7 @@ struct WordListView: View {
         return sortedTerms.filter {
             $0.primary.lowercased().contains(query) ||
             $0.lemma.lowercased().contains(query) ||
-            $0.translationJa.contains(query)
+            $0.translation.contains(query)
         }
     }
 

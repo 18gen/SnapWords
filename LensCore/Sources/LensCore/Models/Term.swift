@@ -8,7 +8,8 @@ public final class Term {
     public var primary: String
     public var lemma: String
     public var pos: String
-    public var translationJa: String
+    @Attribute(originalName: "translationJa")
+    public var translation: String
     public var articleMode: Bool
     public var reviewBox: Int
     public var dueDate: Date
@@ -25,7 +26,7 @@ public final class Term {
         primary: String,
         lemma: String,
         pos: POS,
-        translationJa: String = "",
+        translation: String = "",
         articleMode: Bool = false
     ) {
         self.id = UUID()
@@ -33,7 +34,7 @@ public final class Term {
         self.primary = primary
         self.lemma = lemma
         self.pos = pos.rawValue
-        self.translationJa = translationJa
+        self.translation = translation
         self.articleMode = articleMode
         self.reviewBox = 1
         self.dueDate = Date()

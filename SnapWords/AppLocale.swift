@@ -1,17 +1,12 @@
 import SwiftUI
-import LensCore
 
 @Observable
 class AppLocale {
     var bundle: Bundle
 
     init() {
-        let code = LanguageSettings().sourceLanguage
+        let code = Locale.current.language.languageCode?.identifier ?? "en"
         self.bundle = Self.bundle(for: code)
-    }
-
-    func update(to code: String) {
-        bundle = Self.bundle(for: code)
     }
 
     func callAsFunction(_ key: String.LocalizationValue) -> String {
