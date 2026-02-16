@@ -78,157 +78,169 @@ struct WordPopoverView: View {
 
     // MARK: - Body
 
+    @State private var headerVisible = true
+
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(spacing: 20) {
 
-            // --- Word Section ---
-            VStack(spacing: 8) {
-                Text(primary)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(3)
-                    .minimumScaleFactor(0.7)
+                    // --- Word Section ---
+                    VStack(spacing: 8) {
+                        Text(primary)
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(3)
+                            .minimumScaleFactor(0.7)
 
-                if !isTranslating {
-                    Text(pos.displayName(for: langSettings.nativeLanguage))
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .foregroundStyle(posColor)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 3)
-                        .background(posColor.opacity(0.12))
-                        .clipShape(Capsule())
-                        .transition(.scale.combined(with: .opacity))
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 4)
-
-            Divider().frame(height: 1).overlay(Color(.separator))
-
-            // --- Translation Section ---
-            Group {
-                if isTranslating {
-                    ProgressView()
-                        .controlSize(.regular)
-                        .frame(height: 28)
-                        .frame(maxWidth: .infinity)
-                } else if isSameLanguage {
-                    Button {
-                        showDictionary = true
-                    } label: {
-                        Label(locale("word.look_up"), systemImage: "book.fill")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
+                        if !isTranslating {
+                            Text(pos.displayName(for: langSettings.nativeLanguage))
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundStyle(posColor)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 3)
+                                .background(posColor.opacity(0.12))
+                                .clipShape(Capsule())
+                                .transition(.scale.combined(with: .opacity))
+                        }
                     }
                     .frame(maxWidth: .infinity)
-                } else {
-                    VStack(spacing: 12) {
-                        Text(translationText.isEmpty ? locale("review.no_translation") : translationText)
-                            .font(.title3)
-                            .fontWeight(.medium)
-                            .foregroundStyle(translationText.isEmpty ? .tertiary : .primary)
-                            .multilineTextAlignment(.center)
+                    .padding(.top, 4)
+                    .onScrollVisibilityChange { visible in
+                        headerVisible = visible
+                    }
+
+                    Divider().frame(height: 1).overlay(Color(.separator))
+
+                    // --- Translation Section ---
+                    Group {
+                        if isTranslating {
+                            ProgressView()
+                                .controlSize(.regular)
+                                .frame(height: 28)
+                                .frame(maxWidth: .infinity)
+                        } else if isSameLanguage {
+                            Button {
+                                showDictionary = true
+                            } label: {
+                                Label(locale("word.look_up"), systemImage: "book.fill")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                            }
                             .frame(maxWidth: .infinity)
+                        } else {
+                            VStack(spacing: 12) {
+                                Text(translationText.isEmpty ? locale("review.no_translation") : translationText)
+                                    .font(.title3)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(translationText.isEmpty ? .tertiary : .primary)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity)
 
-                        // Rich details
-                        if !etymologyText.isEmpty || !exampleText.isEmpty {
-                            VStack(alignment: .leading, spacing: 0) {
-                                if !etymologyText.isEmpty {
-                                    Text(etymologyText)
-                                        .font(.callout)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .padding(.vertical, 10)
-                                }
-
-                                if !etymologyText.isEmpty && !exampleText.isEmpty {
-                                    Divider()
-                                }
-
-                                if !exampleText.isEmpty {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        boldedExample(exampleText, word: primary)
-                                            .font(.callout)
-                                            .fixedSize(horizontal: false, vertical: true)
-                                        if !exampleTranslationText.isEmpty {
-                                            boldedExample(exampleTranslationText, word: translationText)
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
+                                // Rich details
+                                if !etymologyText.isEmpty || !exampleText.isEmpty {
+                                    VStack(alignment: .leading, spacing: 0) {
+                                        if !etymologyText.isEmpty {
+                                            Text(etymologyText)
+                                                .font(.callout)
                                                 .fixedSize(horizontal: false, vertical: true)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .padding(.vertical, 10)
+                                        }
+
+                                        if !etymologyText.isEmpty && !exampleText.isEmpty {
+                                            Divider()
+                                        }
+
+                                        if !exampleText.isEmpty {
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                boldedExample(exampleText, word: primary)
+                                                    .font(.callout)
+                                                    .fixedSize(horizontal: false, vertical: true)
+                                                if !exampleTranslationText.isEmpty {
+                                                    boldedExample(exampleTranslationText, word: translationText)
+                                                        .font(.caption)
+                                                        .foregroundStyle(.secondary)
+                                                        .fixedSize(horizontal: false, vertical: true)
+                                                }
+                                            }
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .padding(.vertical, 10)
                                         }
                                     }
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.vertical, 10)
+                                    .padding(.horizontal, 12)
+                                    .background(.fill.quaternary)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .transition(.opacity.combined(with: .move(edge: .bottom)))
                                 }
                             }
-                            .padding(.horizontal, 12)
-                            .background(.fill.quaternary)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .transition(.opacity.combined(with: .move(edge: .bottom)))
                         }
                     }
-                }
-            }
-            .animation(.easeOut(duration: 0.3), value: isTranslating)
+                    .animation(.easeOut(duration: 0.3), value: isTranslating)
 
-            Divider().frame(height: 1).overlay(Color(.separator))
+                    Divider().frame(height: 1).overlay(Color(.separator))
 
-            // --- Folder Selector ---
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Folder")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, 4)
+                    // --- Folder Selector ---
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Folder")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.secondary)
+                            .padding(.leading, 4)
 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(allFolders) { folder in
-                            let isSelected = selectedFolderID == folder.id
-                            Button {
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    selectedFolderID = folder.id
-                                }
-                            } label: {
-                                HStack(spacing: 5) {
-                                    Image(systemName: folder.iconName)
-                                        .font(.caption2)
-                                    Text(folder.name)
-                                        .font(.caption)
-                                        .fontWeight(isSelected ? .semibold : .regular)
-                                }
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .background(
-                                    isSelected
-                                        ? Color(hex: folder.colorHex).opacity(0.18)
-                                        : Color(.systemGray6)
-                                )
-                                .foregroundStyle(
-                                    isSelected
-                                        ? Color(hex: folder.colorHex)
-                                        : .secondary
-                                )
-                                .clipShape(Capsule())
-                                .overlay(
-                                    Capsule()
-                                        .strokeBorder(
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(allFolders) { folder in
+                                    let isSelected = selectedFolderID == folder.id
+                                    Button {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            selectedFolderID = folder.id
+                                        }
+                                    } label: {
+                                        HStack(spacing: 5) {
+                                            Image(systemName: folder.iconName)
+                                                .font(.caption2)
+                                            Text(folder.name)
+                                                .font(.caption)
+                                                .fontWeight(isSelected ? .semibold : .regular)
+                                        }
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(
                                             isSelected
-                                                ? Color(hex: folder.colorHex).opacity(0.3)
-                                                : .clear,
-                                            lineWidth: 1
+                                                ? Color(hex: folder.colorHex).opacity(0.18)
+                                                : Color(.systemGray6)
                                         )
-                                )
+                                        .foregroundStyle(
+                                            isSelected
+                                                ? Color(hex: folder.colorHex)
+                                                : .secondary
+                                        )
+                                        .clipShape(Capsule())
+                                        .overlay(
+                                            Capsule()
+                                                .strokeBorder(
+                                                    isSelected
+                                                        ? Color(hex: folder.colorHex).opacity(0.3)
+                                                        : .clear,
+                                                    lineWidth: 1
+                                                )
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
                             }
-                            .buttonStyle(.plain)
                         }
                     }
                 }
+                .padding(.horizontal, 24)
+                .padding(.top, 8)
+                .padding(.bottom, 12)
             }
 
-            // --- Action Buttons ---
+            // --- Action Buttons (pinned) ---
             HStack(spacing: 12) {
                 Button {
                     onCancel()
@@ -252,10 +264,19 @@ struct WordPopoverView: View {
                 .buttonStyle(.borderedProminent)
                 .disabled(isSaving)
             }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 20)
+            .padding(.top, 8)
         }
-        .padding(.horizontal, 24)
-        .padding(.top, 8)
-        .padding(.bottom, 20)
+        .overlay(alignment: .top) {
+            Text(primary)
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(.bar)
+                .opacity(headerVisible ? 0 : 1)
+                .animation(.easeInOut(duration: 0.2), value: headerVisible)
+        }
         .translationTask(translationConfig) { session in
             do {
                 let wordResponse = try await session.translate(primary)
@@ -418,25 +439,11 @@ struct WordPopoverView: View {
                 term.folder = folder
             }
 
-            if !isSameLanguage {
-                let storage = StorageService()
-                let context = contextExtractor.context(for: token, tokens: allTokens)
-                let screenshotPath = try storage.saveScreenshot(image: image)
-
-                var cropPath: String?
+            if !isSameLanguage, term.snapImagePath == nil {
                 if let highlighted = highlightedImage(token: token) {
-                    cropPath = try storage.saveCrop(image: highlighted)
+                    let storage = StorageService()
+                    term.snapImagePath = try storage.saveCrop(image: highlighted)
                 }
-
-                let occurrence = Occurrence(
-                    rawText: token.text,
-                    context: context,
-                    screenshotPath: screenshotPath,
-                    cropPath: cropPath,
-                    sourceLabel: nil
-                )
-                occurrence.term = term
-                modelContext.insert(occurrence)
             }
 
             try modelContext.save()
