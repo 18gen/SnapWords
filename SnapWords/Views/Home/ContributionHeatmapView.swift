@@ -7,7 +7,9 @@ struct ContributionHeatmapView: View {
 
     @Environment(AppLocale.self) private var locale
     @State private var selectedCell: CellID?
+    @State private var dragCell: CellID?
     @State private var selectedYear: Int
+    @State private var mode: HeatmapMode = .browse
 
     private let calendar = Calendar.current
     private let daysPerWeek = 7
@@ -23,9 +25,14 @@ struct ContributionHeatmapView: View {
         _selectedYear = State(initialValue: Calendar.current.component(.year, from: Date()))
     }
 
-    private struct CellID: Equatable {
+    private struct CellID: Equatable, Hashable {
         let week: Int
         let day: Int
+    }
+
+    private enum HeatmapMode: String, CaseIterable {
+        case browse
+        case select
     }
 
     // MARK: - Year helpers
@@ -61,6 +68,19 @@ struct ContributionHeatmapView: View {
     private var totalWeeks: Int {
         let days = calendar.dateComponents([.day], from: startOfGrid, to: endOfGrid).day ?? 0
         return (days / 7) + 1
+    }
+
+    private var defaultCell: CellID {
+        let today = calendar.startOfDay(for: Date())
+        let currentYear = calendar.component(.year, from: Date())
+        let target = selectedYear == currentYear ? today :
+            calendar.date(from: DateComponents(year: selectedYear, month: 1, day: 1))!
+        let days = calendar.dateComponents([.day], from: startOfGrid, to: target).day ?? 0
+        return CellID(week: days / 7, day: days % 7)
+    }
+
+    private var displayCell: CellID {
+        dragCell ?? selectedCell ?? defaultCell
     }
 
     /// Week index to scroll to on appear
@@ -114,26 +134,34 @@ struct ContributionHeatmapView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Activity title + year switcher
-            HStack {
-                Text(locale("home.activity"))
-                    .font(.headline)
-                Spacer()
-                yearSwitcher
-            }
+        ScrollViewReader { proxy in
+            VStack(alignment: .leading, spacing: 8) {
+                // Selected date info + year switcher
+                HStack {
+                    let date = dateFor(week: displayCell.week, day: displayCell.day)
+                    let key = calendar.dateComponents([.year, .month, .day], from: date)
+                    let count = activityMap[key] ?? 0
+                    Text(date.formatted(.dateTime.month(.abbreviated).day()))
+                        .font(.headline)
+                    Text("\(count)")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    yearSwitcher
+                }
+                .animation(.easeOut(duration: 0.15), value: displayCell)
 
-            // Heatmap grid
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(alignment: .top, spacing: 6) {
-                    // Fixed day labels column (outside ScrollView)
-                    VStack(spacing: 0) {
-                        Color.clear.frame(width: dayLabelWidth, height: 14)
-                        Spacer().frame(height: 4)
-                        dayLabels
-                    }
+                // Heatmap grid
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(alignment: .top, spacing: 6) {
+                        // Fixed day labels column
+                        VStack(spacing: 0) {
+                            Color.clear.frame(width: dayLabelWidth, height: 14)
+                            Spacer().frame(height: 4)
+                            dayLabels
+                        }
 
-                    ScrollViewReader { proxy in
                         ScrollView(.horizontal, showsIndicators: false) {
                             VStack(alignment: .leading, spacing: 4) {
                                 monthLabels
@@ -141,19 +169,30 @@ struct ContributionHeatmapView: View {
                             }
                             .padding(.horizontal, 8)
                         }
+                        .scrollDisabled(mode == .select)
                         .onAppear {
+                            selectedCell = defaultCell
                             proxy.scrollTo(initialScrollWeek, anchor: .leading)
                         }
                         .onChange(of: selectedYear) {
-                            selectedCell = nil
+                            dragCell = nil
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                selectedCell = defaultCell
                                 proxy.scrollTo(initialScrollWeek, anchor: .leading)
                             }
                         }
+                        .onChange(of: mode) {
+                            dragCell = nil
+                        }
+                    }
+
+                    HStack(spacing: 6) {
+                        Color.clear.frame(width: dayLabelWidth)
+                        modePicker
+                        legend
                     }
                 }
 
-                legend
             }
         }
     }
@@ -181,11 +220,19 @@ struct ContributionHeatmapView: View {
                 Image(systemName: "chevron.up.chevron.down")
                     .font(.caption2)
             }
-            .foregroundStyle(.secondary)
         }
     }
 
     // MARK: - Sub-views
+
+    private var modePicker: some View {
+        Picker("", selection: $mode) {
+            Text(locale("heatmap.browse")).tag(HeatmapMode.browse)
+            Text(locale("heatmap.select")).tag(HeatmapMode.select)
+        }
+        .pickerStyle(.segmented)
+        .frame(width: 140)
+    }
 
     private var monthLabels: some View {
         HStack(spacing: cellSpacing) {
@@ -209,7 +256,6 @@ struct ContributionHeatmapView: View {
 
     private var gridContent: some View {
         let activity = activityMap
-        let today = calendar.startOfDay(for: Date())
         let jan1 = calendar.date(from: DateComponents(year: selectedYear, month: 1, day: 1))!
         let dec31 = endOfGrid
 
@@ -220,51 +266,52 @@ struct ContributionHeatmapView: View {
                         let date = dateFor(week: week, day: day)
                         let key = calendar.dateComponents([.year, .month, .day], from: date)
                         let count = activity[key] ?? 0
-                        let isFuture = date > today
                         let isOutOfYear = date < jan1 || date > dec31
-                        let isSelected = selectedCell?.week == week && selectedCell?.day == day
+                        let activeCell = dragCell ?? selectedCell
+                        let isHighlighted = activeCell?.week == week && activeCell?.day == day
 
                         RoundedRectangle(cornerRadius: 3)
                             .fill(isOutOfYear ? Color.clear : colorForLevel(count))
                             .frame(width: cellSize, height: cellSize)
                             .overlay {
-                                if isSelected && !isFuture && !isOutOfYear {
+                                if isHighlighted && !isOutOfYear {
                                     RoundedRectangle(cornerRadius: 3)
                                         .stroke(Color.primary, lineWidth: 1.5)
                                 }
                             }
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                guard !isFuture, !isOutOfYear else { return }
+                                guard mode == .browse, !isOutOfYear else { return }
+                                let tappedCell = CellID(week: week, day: day)
                                 withAnimation(.easeOut(duration: 0.15)) {
-                                    if isSelected {
-                                        selectedCell = nil
-                                    } else {
-                                        selectedCell = CellID(week: week, day: day)
-                                    }
+                                    selectedCell = (tappedCell == selectedCell) ? nil : tappedCell
                                 }
-                            }
-                            .popover(isPresented: Binding(
-                                get: { isSelected && !isFuture && !isOutOfYear },
-                                set: { if !$0 { selectedCell = nil } }
-                            )) {
-                                HStack(spacing: 6) {
-                                    Text("\(count)")
-                                        .font(.subheadline)
-                                        .fontWeight(.bold)
-                                    Text(date.formatted(.dateTime.month(.abbreviated).day().year()))
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .presentationCompactAdaptation(.popover)
                             }
                     }
                 }
                 .id(week)
             }
         }
+        .coordinateSpace(name: "grid")
+        .simultaneousGesture(
+            DragGesture(minimumDistance: mode == .select ? 0 : .infinity, coordinateSpace: .named("grid"))
+                .onChanged { value in
+                    let cell = cellAt(location: value.location)
+                    if cell != dragCell {
+                        dragCell = cell
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    }
+                }
+                .onEnded { value in
+                    let distance = hypot(value.translation.width, value.translation.height)
+                    if distance < 5, let cell = cellAt(location: value.location) {
+                        withAnimation(.easeOut(duration: 0.15)) {
+                            selectedCell = (cell == selectedCell) ? nil : cell
+                        }
+                    }
+                    dragCell = nil
+                }
+        )
     }
 
     private var dayLabels: some View {
@@ -304,4 +351,17 @@ struct ContributionHeatmapView: View {
         let offset = week * 7 + day
         return calendar.date(byAdding: .day, value: offset, to: startOfGrid)!
     }
+
+    private func cellAt(location: CGPoint) -> CellID? {
+        let step = cellSize + cellSpacing
+        let week = Int(location.x / step)
+        let day = Int(location.y / step)
+        guard week >= 0, week < totalWeeks, day >= 0, day < daysPerWeek else { return nil }
+        let date = dateFor(week: week, day: day)
+        let jan1 = calendar.date(from: DateComponents(year: selectedYear, month: 1, day: 1))!
+        let dec31 = endOfGrid
+        guard date >= jan1, date <= dec31 else { return nil }
+        return CellID(week: week, day: day)
+    }
+
 }
