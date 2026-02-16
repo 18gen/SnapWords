@@ -34,6 +34,24 @@ struct FolderPickerView: View {
     var body: some View {
         NavigationStack {
             List {
+                // "None" row to remove folder
+                Button {
+                    term.folder = nil
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "xmark.circle")
+                            .foregroundStyle(.secondary)
+                            .frame(width: 24)
+                        Text(locale("folder.none"))
+                            .foregroundStyle(.primary)
+                        Spacer()
+                        if term.folder == nil {
+                            Image(systemName: "checkmark")
+                                .foregroundStyle(.blue)
+                        }
+                    }
+                }
+
                 ForEach(flattenedFolders, id: \.folder.id) { item in
                     Button {
                         term.folder = item.folder
