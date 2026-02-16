@@ -28,6 +28,7 @@ struct ReviewView: View {
     var body: some View {
         VStack {
             if dueTerms.isEmpty {
+
                 ContentUnavailableView(
                     locale("review.all_done.title"),
                     systemImage: "checkmark.circle",
@@ -39,7 +40,7 @@ struct ReviewView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "party.popper")
                         .font(.system(size: 48))
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Color(red: 0.361, green: 0.722, blue: 0.478)) // #5CB87A sage
                     Text(locale("review.session_complete"))
                         .font(.title2)
                     Text(locale("review.reviewed_count \(dueTerms.count)"))
@@ -53,6 +54,7 @@ struct ReviewView: View {
             }
         }
         .navigationTitle(folder?.name ?? locale("review.title"))
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if folder != nil {
                 ToolbarItem(placement: .cancellationAction) {
@@ -94,9 +96,10 @@ struct ReviewView: View {
                             .padding(.horizontal)
                     }
 
-                    if !term.definition.isEmpty {
-                        Text(term.definition)
+                    if !term.etymology.isEmpty {
+                        Text(term.etymology)
                             .font(.subheadline)
+                            .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
                     }
@@ -118,10 +121,50 @@ struct ReviewView: View {
 
                     Text(term.posEnum.displayName(for: langSettings.nativeLanguage))
                         .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(.fill.tertiary)
+                        .fontWeight(.medium)
+                        .foregroundStyle(posColor(for: term.posEnum))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 3)
+                        .background(posColor(for: term.posEnum).opacity(0.12))
                         .clipShape(Capsule())
+
+                    if !term.synonymsList.isEmpty {
+                        VStack(spacing: 4) {
+                            Text(locale("detail.synonyms"))
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .textCase(.uppercase)
+                            HStack(spacing: 6) {
+                                ForEach(term.synonymsList, id: \.self) { word in
+                                    Text(word)
+                                        .font(.caption)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 4)
+                                        .background(Color(.systemGray6))
+                                        .clipShape(Capsule())
+                                }
+                            }
+                        }
+                    }
+
+                    if !term.antonymsList.isEmpty {
+                        VStack(spacing: 4) {
+                            Text(locale("detail.antonyms"))
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .textCase(.uppercase)
+                            HStack(spacing: 6) {
+                                ForEach(term.antonymsList, id: \.self) { word in
+                                    Text(word)
+                                        .font(.caption)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 4)
+                                        .background(Color(.systemGray6))
+                                        .clipShape(Capsule())
+                                }
+                            }
+                        }
+                    }
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
@@ -137,7 +180,7 @@ struct ReviewView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.bordered)
-                    .tint(.red)
+                    .tint(Color(red: 0.878, green: 0.486, blue: 0.424)) // #E07C6C muted coral
 
                     Button {
                         markGotIt(term)
@@ -146,7 +189,7 @@ struct ReviewView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.green)
+                    .tint(Color(red: 0.361, green: 0.722, blue: 0.478)) // #5CB87A muted sage
                 }
                 .padding(.horizontal)
             } else {
@@ -183,6 +226,16 @@ struct ReviewView: View {
     private func advance() {
         showAnswer = false
         currentIndex += 1
+    }
+
+    private func posColor(for pos: POS) -> Color {
+        switch pos {
+        case .noun: Color(red: 0.356, green: 0.553, blue: 0.937)
+        case .verb: Color(red: 0.878, green: 0.533, blue: 0.302)
+        case .adjective: Color(red: 0.361, green: 0.722, blue: 0.478)
+        case .phrase: Color(red: 0.608, green: 0.494, blue: 0.784)
+        case .other: .gray
+        }
     }
 
     private func boldedExample(_ sentence: String, word: String) -> Text {
