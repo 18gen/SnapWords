@@ -7,6 +7,7 @@ struct WordPopoverView: View {
     let token: RecognizedToken
     let allTokens: [RecognizedToken]
     let image: UIImage
+    let visibleRect: CGRect
     let onSave: () -> Void
     let onCancel: () -> Void
 
@@ -22,6 +23,9 @@ struct WordPopoverView: View {
     @State private var definitionText: String = ""
     @State private var exampleText: String = ""
     @State private var exampleTranslationText: String = ""
+    @State private var etymologyText: String = ""
+    @State private var synonymsText: String = ""
+    @State private var antonymsText: String = ""
 
     @Query(sort: \Folder.sortOrder) private var allFolders: [Folder]
 
@@ -38,12 +42,14 @@ struct WordPopoverView: View {
         token: RecognizedToken,
         allTokens: [RecognizedToken],
         image: UIImage,
+        visibleRect: CGRect,
         onSave: @escaping () -> Void,
         onCancel: @escaping () -> Void
     ) {
         self.token = token
         self.allTokens = allTokens
         self.image = image
+        self.visibleRect = visibleRect
         self.onSave = onSave
         self.onCancel = onCancel
 
@@ -62,10 +68,10 @@ struct WordPopoverView: View {
 
     private var posColor: Color {
         switch pos {
-        case .noun: .blue
-        case .verb: .orange
-        case .adjective: .green
-        case .phrase: .purple
+        case .noun: Color(red: 0.356, green: 0.553, blue: 0.937)    // #5B8DEF muted blue
+        case .verb: Color(red: 0.878, green: 0.533, blue: 0.302)    // #E0884D muted orange
+        case .adjective: Color(red: 0.361, green: 0.722, blue: 0.478) // #5CB87A muted green
+        case .phrase: Color(red: 0.608, green: 0.494, blue: 0.784)   // #9B7EC8 muted purple
         case .other: .gray
         }
     }
@@ -127,17 +133,17 @@ struct WordPopoverView: View {
                             .frame(maxWidth: .infinity)
 
                         // Rich details
-                        if !definitionText.isEmpty || !exampleText.isEmpty {
+                        if !etymologyText.isEmpty || !exampleText.isEmpty {
                             VStack(alignment: .leading, spacing: 0) {
-                                if !definitionText.isEmpty {
-                                    Text(definitionText)
+                                if !etymologyText.isEmpty {
+                                    Text(etymologyText)
                                         .font(.callout)
                                         .fixedSize(horizontal: false, vertical: true)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .padding(.vertical, 10)
                                 }
 
-                                if !definitionText.isEmpty && !exampleText.isEmpty {
+                                if !etymologyText.isEmpty && !exampleText.isEmpty {
                                     Divider()
                                 }
 
@@ -254,10 +260,6 @@ struct WordPopoverView: View {
             do {
                 let wordResponse = try await session.translate(primary)
                 translationText = wordResponse.targetText
-                if !definitionText.isEmpty {
-                    let defResponse = try await session.translate(definitionText)
-                    definitionText = defResponse.targetText
-                }
                 if !exampleText.isEmpty {
                     let exResponse = try await session.translate(exampleText)
                     exampleTranslationText = exResponse.targetText
@@ -325,21 +327,16 @@ struct WordPopoverView: View {
     private func applyResult(_ result: GroqRichResult, language: String) {
         definitionText = result.definition
         exampleText = result.example
+        etymologyText = result.etymology
+        synonymsText = result.synonyms
+        antonymsText = result.antonyms
         pos = result.pos
         lemma = result.lemma
 
-        if let phrase = result.phrase, !phrase.isEmpty {
-            pos = .phrase
-            primary = normService.makePrimary(
-                raw: token.text, lemma: result.lemma,
-                pos: .phrase, phraseText: phrase, language: language
-            )
-        } else {
-            primary = normService.makePrimary(
-                raw: token.text, lemma: result.lemma,
-                pos: result.pos, language: language
-            )
-        }
+        primary = normService.makePrimary(
+            raw: token.text, lemma: result.lemma,
+            pos: result.pos, language: language
+        )
 
         isTranslating = false
     }
@@ -384,6 +381,15 @@ struct WordPopoverView: View {
                 if !exampleTranslationText.isEmpty {
                     term.exampleTranslation = exampleTranslationText
                 }
+                if !etymologyText.isEmpty {
+                    term.etymology = etymologyText
+                }
+                if !synonymsText.isEmpty {
+                    term.synonyms = synonymsText
+                }
+                if !antonymsText.isEmpty {
+                    term.antonyms = antonymsText
+                }
             } else {
                 term = Term(
                     primary: primary,
@@ -393,6 +399,9 @@ struct WordPopoverView: View {
                     definition: definitionText,
                     example: exampleText,
                     exampleTranslation: exampleTranslationText,
+                    etymology: etymologyText,
+                    synonyms: synonymsText,
+                    antonyms: antonymsText,
                     articleMode: false
                 )
                 modelContext.insert(term)
@@ -442,32 +451,16 @@ struct WordPopoverView: View {
         let imgW = CGFloat(cgImage.width)
         let imgH = CGFloat(cgImage.height)
 
-        // Crop to surrounding lines for focused context
-        let lineTokens = Dictionary(grouping: allTokens) { $0.lineId }
-        let targetLineId = token.lineId
-        var relevantTokens: [RecognizedToken] = []
-        for id in [targetLineId - 1, targetLineId, targetLineId + 1] {
-            if let tokens = lineTokens[id] {
-                relevantTokens.append(contentsOf: tokens)
-            }
-        }
-        guard !relevantTokens.isEmpty else { return nil }
+        // Crop to the visible viewport from the import view
+        let cropRect = CGRect(
+            x: visibleRect.origin.x * imgW,
+            y: visibleRect.origin.y * imgH,
+            width: visibleRect.width * imgW,
+            height: visibleRect.height * imgH
+        ).intersection(CGRect(x: 0, y: 0, width: imgW, height: imgH))
 
-        let padding: CGFloat = 20
-        let minX = relevantTokens.map { $0.boundingBox.minX }.min()!
-        let minY = relevantTokens.map { $0.boundingBox.minY }.min()!
-        let maxX = relevantTokens.map { $0.boundingBox.maxX }.max()!
-        let maxY = relevantTokens.map { $0.boundingBox.maxY }.max()!
-
-        let contextRect = CGRect(
-            x: max(0, minX - padding),
-            y: max(0, minY - padding),
-            width: min(imgW, maxX + padding) - max(0, minX - padding),
-            height: min(imgH, maxY + padding) - max(0, minY - padding)
-        )
-
-        guard contextRect.width >= 50, contextRect.height >= 50,
-              let cropped = cgImage.cropping(to: contextRect) else { return nil }
+        guard cropRect.width >= 50, cropRect.height >= 50,
+              let cropped = cgImage.cropping(to: cropRect) else { return nil }
 
         let cropSize = CGSize(width: cropped.width, height: cropped.height)
         let format = UIGraphicsImageRendererFormat()
@@ -477,10 +470,10 @@ struct WordPopoverView: View {
         return renderer.image { ctx in
             UIImage(cgImage: cropped).draw(at: .zero)
 
-            // Highlight rect relative to the context crop
+            // Highlight rect relative to the visible crop
             let rect = CGRect(
-                x: token.boundingBox.origin.x - contextRect.origin.x,
-                y: token.boundingBox.origin.y - contextRect.origin.y,
+                x: token.boundingBox.origin.x - cropRect.origin.x,
+                y: token.boundingBox.origin.y - cropRect.origin.y,
                 width: token.boundingBox.width,
                 height: token.boundingBox.height
             )
