@@ -87,9 +87,7 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab(locale("tab.home"), systemImage: "house.fill", value: 0) {
-                NavigationStack {
-                    ReviewView()
-                }
+                HomeView()
             }
 
             Tab(locale("tab.create"), systemImage: "plus", value: 1) {
