@@ -87,7 +87,7 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab(locale("tab.home"), systemImage: "house.fill", value: 0) {
-                HomeView()
+                HomeView(onAddWords: { showCreateMenu = true })
             }
 
             Tab(locale("tab.create"), systemImage: "plus", value: 1) {
