@@ -10,6 +10,8 @@ struct ContributionHeatmapView: View {
     @State private var dragCell: CellID?
     @State private var selectedYear: Int
     @State private var mode: HeatmapMode = .browse
+    @State private var detailMode: DetailMode = .reviewed
+    @Binding var navigateToReview: Bool
 
     private let calendar = Calendar.current
     private let daysPerWeek = 7
@@ -19,9 +21,10 @@ struct ContributionHeatmapView: View {
 
     private let baseGreen = Color(red: 0.22, green: 0.65, blue: 0.36)
 
-    init(allTerms: [Term], reviewLogs: [ReviewLog]) {
+    init(allTerms: [Term], reviewLogs: [ReviewLog], navigateToReview: Binding<Bool>) {
         self.allTerms = allTerms
         self.reviewLogs = reviewLogs
+        self._navigateToReview = navigateToReview
         _selectedYear = State(initialValue: Calendar.current.component(.year, from: Date()))
     }
 
@@ -33,6 +36,11 @@ struct ContributionHeatmapView: View {
     private enum HeatmapMode: String, CaseIterable {
         case browse
         case select
+    }
+
+    private enum DetailMode: String, CaseIterable {
+        case added
+        case reviewed
     }
 
     // MARK: - Year helpers
@@ -81,6 +89,35 @@ struct ContributionHeatmapView: View {
 
     private var displayCell: CellID {
         dragCell ?? selectedCell ?? defaultCell
+    }
+
+    private var selectedDate: Date {
+        calendar.startOfDay(for: dateFor(week: displayCell.week, day: displayCell.day))
+    }
+
+    private var dueCount: Int {
+        let now = Date()
+        return allTerms.filter { $0.dueDate <= now }.count
+    }
+
+    private var termsForSelectedDate: [Term] {
+        allTerms.filter { calendar.startOfDay(for: $0.createdAt) == selectedDate }
+    }
+
+    private var reviewCountForSelectedDate: Int {
+        reviewLogs.filter { calendar.startOfDay(for: $0.date) == selectedDate }.count
+    }
+
+    private var reviewedTermsForSelectedDate: [Term] {
+        let logs = reviewLogs.filter { calendar.startOfDay(for: $0.date) == selectedDate }
+        var seen = Set<UUID>()
+        var terms: [Term] = []
+        for log in logs {
+            if let term = log.term, seen.insert(term.id).inserted {
+                terms.append(term)
+            }
+        }
+        return terms
     }
 
     /// Week index to scroll to on appear
@@ -139,15 +176,10 @@ struct ContributionHeatmapView: View {
                 // Selected date info + year switcher
                 HStack {
                     let date = dateFor(week: displayCell.week, day: displayCell.day)
-                    let key = calendar.dateComponents([.year, .month, .day], from: date)
-                    let count = activityMap[key] ?? 0
                     Text(date.formatted(.dateTime.month(.abbreviated).day()))
                         .font(.headline)
-                    Text("\(count)")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.secondary)
                     Spacer()
+                    modePicker
                     yearSwitcher
                 }
                 .animation(.easeOut(duration: 0.15), value: displayCell)
@@ -188,10 +220,13 @@ struct ContributionHeatmapView: View {
 
                     HStack(spacing: 6) {
                         Color.clear.frame(width: dayLabelWidth)
-                        modePicker
                         legend
                     }
                 }
+
+                // Detail section
+                cellDetail
+                    .padding(.top, 4)
 
             }
         }
@@ -231,7 +266,9 @@ struct ContributionHeatmapView: View {
             Text(locale("heatmap.select")).tag(HeatmapMode.select)
         }
         .pickerStyle(.segmented)
-        .frame(width: 140)
+        .controlSize(.mini)
+        .frame(width: 130)
+        .scaleEffect(0.8, anchor: .trailing)
     }
 
     private var monthLabels: some View {
@@ -280,12 +317,11 @@ struct ContributionHeatmapView: View {
                                 }
                             }
                             .contentShape(Rectangle())
+                            .animation(.easeOut(duration: 0.15), value: selectedCell)
                             .onTapGesture {
                                 guard mode == .browse, !isOutOfYear else { return }
                                 let tappedCell = CellID(week: week, day: day)
-                                withAnimation(.easeOut(duration: 0.15)) {
-                                    selectedCell = (tappedCell == selectedCell) ? nil : tappedCell
-                                }
+                                selectedCell = (tappedCell == selectedCell) ? nil : tappedCell
                             }
                     }
                 }
@@ -299,16 +335,11 @@ struct ContributionHeatmapView: View {
                     let cell = cellAt(location: value.location)
                     if cell != dragCell {
                         dragCell = cell
+                        if let cell { selectedCell = cell }
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     }
                 }
-                .onEnded { value in
-                    let distance = hypot(value.translation.width, value.translation.height)
-                    if distance < 5, let cell = cellAt(location: value.location) {
-                        withAnimation(.easeOut(duration: 0.15)) {
-                            selectedCell = (cell == selectedCell) ? nil : cell
-                        }
-                    }
+                .onEnded { _ in
                     dragCell = nil
                 }
         )
@@ -344,6 +375,89 @@ struct ContributionHeatmapView: View {
             Text(locale("heatmap.more"))
                 .font(.system(size: 9))
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    private var cellDetail: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            // Added / Reviewed picker with counts
+            Picker("", selection: $detailMode) {
+                Text("\(locale("heatmap.reviewed")) (\(reviewCountForSelectedDate))")
+                    .tag(DetailMode.reviewed)
+                Text("\(locale("heatmap.added")) (\(termsForSelectedDate.count))")
+                    .tag(DetailMode.added)
+            }
+            .pickerStyle(.segmented)
+
+            // Content based on mode
+            switch detailMode {
+            case .added:
+                if termsForSelectedDate.isEmpty {
+                    Text(locale("heatmap.no_activity"))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.vertical, 12)
+                } else {
+                    ForEach(termsForSelectedDate) { term in
+                        NavigationLink(value: term) {
+                            FlatTermRow(term: term)
+                        }
+                        if term.id != termsForSelectedDate.last?.id {
+                            Divider()
+                        }
+                    }
+                }
+            case .reviewed:
+                if reviewCountForSelectedDate == 0 {
+                    Text(locale("heatmap.no_activity"))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.vertical, 12)
+                } else if reviewedTermsForSelectedDate.isEmpty {
+                    // Old logs without term relationship
+                    Text(locale("heatmap.reviews_count \(reviewCountForSelectedDate)"))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.vertical, 12)
+                } else {
+                    ForEach(reviewedTermsForSelectedDate) { term in
+                        NavigationLink(value: term) {
+                            FlatTermRow(term: term)
+                        }
+                        if term.id != reviewedTermsForSelectedDate.last?.id {
+                            Divider()
+                        }
+                    }
+                }
+
+                if dueCount > 0 {
+                    Button {
+                        navigateToReview = true
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(locale("home.start_review"))
+                                    .font(.headline)
+                                Text(locale("home.due_count \(dueCount)"))
+                                    .font(.subheadline)
+                                    .foregroundStyle(.white.opacity(0.8))
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.title3)
+                                .foregroundStyle(.white.opacity(0.7))
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color(red: 0.361, green: 0.722, blue: 0.478))
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                    }
+                }
+            }
         }
     }
 

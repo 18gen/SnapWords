@@ -6,16 +6,20 @@ struct FlatTermRow: View {
     @Environment(AppLocale.self) private var locale
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(term.primary)
-                .font(.headline)
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(term.primary)
+                    .font(.headline)
 
-            if !term.translation.isEmpty {
-                Text(term.translation)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                if !term.translation.isEmpty {
+                    Text(term.translation)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
             }
+
+            Spacer()
 
             if let folder = term.folder {
                 HStack(spacing: 3) {

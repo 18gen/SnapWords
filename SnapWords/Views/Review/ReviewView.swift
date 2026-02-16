@@ -199,18 +199,18 @@ struct ReviewView: View {
 
     private func markGotIt(_ term: Term) {
         term.dueDate = scheduler.gotIt()
-        logReview()
+        logReview(term: term)
         advance()
     }
 
     private func markAgain(_ term: Term) {
         term.dueDate = scheduler.again()
-        logReview()
+        logReview(term: term)
         advance()
     }
 
-    private func logReview() {
-        modelContext.insert(ReviewLog())
+    private func logReview(term: Term) {
+        modelContext.insert(ReviewLog(term: term))
     }
 
     private func advance() {

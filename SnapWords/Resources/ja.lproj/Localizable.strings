@@ -125,6 +125,11 @@
 "heatmap.more" = "多";
 "heatmap.browse" = "閲覧";
 "heatmap.select" = "選択";
+"heatmap.added" = "追加";
+"heatmap.reviewed" = "復習";
+"heatmap.no_activity" = "アクティビティなし";
+"heatmap.reviews_count %lld" = "%lld 件の復習";
+"heatmap.start_review" = "復習を始める";
 
 /* Settings */
 "settings.title" = "設定";

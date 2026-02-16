@@ -24,11 +24,6 @@ struct HomeView: View {
         }
     }
 
-    private var dueCount: Int {
-        let now = Date()
-        return allTerms.filter { $0.dueDate <= now }.count
-    }
-
     var body: some View {
         NavigationStack {
             Group {
@@ -55,39 +50,8 @@ struct HomeView: View {
     private var homeContent: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Review button
-                Button {
-                    navigateToReview = true
-                } label: {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(locale("home.start_review"))
-                                .font(.headline)
-                            if dueCount > 0 {
-                                Text(locale("home.due_count \(dueCount)"))
-                                    .font(.subheadline)
-                                    .foregroundStyle(.white.opacity(0.8))
-                            } else {
-                                Text(locale("home.no_due"))
-                                    .font(.subheadline)
-                                    .foregroundStyle(.white.opacity(0.8))
-                            }
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.title3)
-                            .foregroundStyle(.white.opacity(0.7))
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color(red: 0.361, green: 0.722, blue: 0.478))
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                }
-                .padding(.horizontal)
-                
                 // Heatmap
-                ContributionHeatmapView(allTerms: allTerms, reviewLogs: reviewLogs)
+                ContributionHeatmapView(allTerms: allTerms, reviewLogs: reviewLogs, navigateToReview: $navigateToReview)
                     .environment(locale)
                     .padding(.horizontal)
             }

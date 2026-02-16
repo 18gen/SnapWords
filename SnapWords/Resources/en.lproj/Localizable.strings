@@ -125,6 +125,11 @@
 "heatmap.more" = "More";
 "heatmap.browse" = "Browse";
 "heatmap.select" = "Select";
+"heatmap.added" = "Added";
+"heatmap.reviewed" = "Reviewed";
+"heatmap.no_activity" = "No activity";
+"heatmap.reviews_count %lld" = "%lld review(s)";
+"heatmap.start_review" = "Start Review";
 
 /* Settings */
 "settings.title" = "Settings";
