@@ -13,6 +13,9 @@ public final class Term {
     public var definition: String = ""
     public var example: String = ""
     public var exampleTranslation: String = ""
+    public var etymology: String = ""
+    public var synonyms: String = ""
+    public var antonyms: String = ""
     public var articleMode: Bool
     public var reviewBox: Int
     public var dueDate: Date
@@ -25,6 +28,14 @@ public final class Term {
 
     public var folder: Folder?
 
+    public var synonymsList: [String] {
+        synonyms.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+    }
+
+    public var antonymsList: [String] {
+        antonyms.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+    }
+
     public init(
         primary: String,
         lemma: String,
@@ -33,6 +44,9 @@ public final class Term {
         definition: String = "",
         example: String = "",
         exampleTranslation: String = "",
+        etymology: String = "",
+        synonyms: String = "",
+        antonyms: String = "",
         articleMode: Bool = false
     ) {
         self.id = UUID()
@@ -44,6 +58,9 @@ public final class Term {
         self.definition = definition
         self.example = example
         self.exampleTranslation = exampleTranslation
+        self.etymology = etymology
+        self.synonyms = synonyms
+        self.antonyms = antonyms
         self.articleMode = articleMode
         self.reviewBox = 1
         self.dueDate = Date()
