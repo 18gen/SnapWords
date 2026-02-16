@@ -16,7 +16,7 @@ struct WordPopoverView: View {
     @State private var primary: String
     @State private var translationText: String = ""
     @State private var isSaving = false
-    @State private var selectedFolderID: UUID = FolderConstants.unfiledFolderID
+    @State private var selectedFolderID: UUID?
     @State private var isTranslating = true
     @State private var isSameLanguage = false
     @State private var showDictionary = false
@@ -43,6 +43,7 @@ struct WordPopoverView: View {
         allTokens: [RecognizedToken],
         image: UIImage,
         visibleRect: CGRect,
+        defaultFolderID: UUID? = nil,
         onSave: @escaping () -> Void,
         onCancel: @escaping () -> Void
     ) {
@@ -52,6 +53,8 @@ struct WordPopoverView: View {
         self.visibleRect = visibleRect
         self.onSave = onSave
         self.onCancel = onCancel
+
+        _selectedFolderID = State(initialValue: defaultFolderID)
 
         let guess = POSService().guess(for: token.text)
         _pos = State(initialValue: guess.pos)
@@ -192,6 +195,35 @@ struct WordPopoverView: View {
 
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
+                                // "None" capsule
+                                let noneSelected = selectedFolderID == nil
+                                Button {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        selectedFolderID = nil
+                                    }
+                                } label: {
+                                    HStack(spacing: 5) {
+                                        Image(systemName: "xmark.circle")
+                                            .font(.caption2)
+                                        Text(locale("folder.none"))
+                                            .font(.caption)
+                                            .fontWeight(noneSelected ? .semibold : .regular)
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(noneSelected ? Color.secondary.opacity(0.18) : Color(.systemGray6))
+                                    .foregroundStyle(noneSelected ? .primary : .secondary)
+                                    .clipShape(Capsule())
+                                    .overlay(
+                                        Capsule()
+                                            .strokeBorder(
+                                                noneSelected ? Color.secondary.opacity(0.3) : .clear,
+                                                lineWidth: 1
+                                            )
+                                    )
+                                }
+                                .buttonStyle(.plain)
+
                                 ForEach(allFolders) { folder in
                                     let isSelected = selectedFolderID == folder.id
                                     Button {
@@ -428,15 +460,18 @@ struct WordPopoverView: View {
                 modelContext.insert(term)
             }
 
-            // Associate selected folder
-            let folderID = selectedFolderID
-            let folderDescriptor = FetchDescriptor<Folder>(
-                predicate: #Predicate<Folder> { f in
-                    f.id == folderID
+            // Associate selected folder (or clear it)
+            if let folderID = selectedFolderID {
+                let folderDescriptor = FetchDescriptor<Folder>(
+                    predicate: #Predicate<Folder> { f in
+                        f.id == folderID
+                    }
+                )
+                if let folder = try modelContext.fetch(folderDescriptor).first {
+                    term.folder = folder
                 }
-            )
-            if let folder = try modelContext.fetch(folderDescriptor).first {
-                term.folder = folder
+            } else {
+                term.folder = nil
             }
 
             if !isSameLanguage, term.snapImagePath == nil {
