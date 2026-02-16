@@ -111,10 +111,18 @@
 "detail.change_folder" = "フォルダを変更";
 "detail.occurrences %lld" = "出現 (%lld)";
 "detail.definition" = "定義";
-"detail.example" = "例文";
 "detail.etymology" = "語源";
 "detail.synonyms" = "類義語";
 "detail.antonyms" = "対義語";
+
+/* Home */
+"home.title" = "ホーム";
+"home.start_review" = "復習を始める";
+"home.due_count %lld" = "%lld 語が復習対象";
+"home.no_due" = "すべて完了！";
+"home.activity" = "アクティビティ";
+"heatmap.less" = "少";
+"heatmap.more" = "多";
 
 /* Settings */
 "settings.title" = "設定";

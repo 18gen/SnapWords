@@ -110,30 +110,26 @@ struct TermDetailView: View {
                     .frame(height: 2)
                     .padding(.horizontal)
 
-                // MARK: - Example Card
+                // MARK: - Example
                 if !term.example.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(locale("detail.example"))
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .foregroundStyle(.secondary)
-                            .textCase(.uppercase)
+                    VStack(alignment: .leading, spacing: 12) {
                         boldedExample(term.example, word: term.primary)
                             .font(.callout)
                             .fixedSize(horizontal: false, vertical: true)
                         if !term.exampleTranslation.isEmpty {
                             boldedExample(term.exampleTranslation, word: term.translation)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .font(.caption2)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(16)
-                    .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal)
-                    .padding(.top, 16)
+                    .padding(.vertical, 24)
+                    
+                    RoundedRectangle(cornerRadius: 0.5)
+                        .fill(Color(.separator))
+                        .frame(height: 2)
+                        .padding(.horizontal)
                 }
 
                 // MARK: - Etymology Card
@@ -154,47 +150,36 @@ struct TermDetailView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal)
                     .padding(.top, 8)
+                    
+                    RoundedRectangle(cornerRadius: 0.5)
+                        .fill(Color(.separator))
+                        .frame(height: 2)
+                        .padding(.horizontal)
                 }
 
                 // MARK: - Synonyms & Antonyms
                 if !term.synonymsList.isEmpty || !term.antonymsList.isEmpty {
                     VStack(alignment: .leading, spacing: 12) {
                         if !term.synonymsList.isEmpty {
-                            VStack(alignment: .leading, spacing: 6) {
+                            VStack(alignment: .leading, spacing: 4) {
                                 Text(locale("detail.synonyms"))
                                     .font(.caption)
                                     .fontWeight(.medium)
                                     .foregroundStyle(.secondary)
                                     .textCase(.uppercase)
-                                HStack(spacing: 8) {
-                                    ForEach(term.synonymsList, id: \.self) { word in
-                                        Text(word)
-                                            .font(.callout)
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 6)
-                                            .background(Color(.systemGray6))
-                                            .clipShape(Capsule())
-                                    }
-                                }
+                                Text(term.synonymsList.joined(separator: ", "))
+                                    .font(.callout)
                             }
                         }
                         if !term.antonymsList.isEmpty {
-                            VStack(alignment: .leading, spacing: 6) {
+                            VStack(alignment: .leading, spacing: 4) {
                                 Text(locale("detail.antonyms"))
                                     .font(.caption)
                                     .fontWeight(.medium)
                                     .foregroundStyle(.secondary)
                                     .textCase(.uppercase)
-                                HStack(spacing: 8) {
-                                    ForEach(term.antonymsList, id: \.self) { word in
-                                        Text(word)
-                                            .font(.callout)
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 6)
-                                            .background(Color(.systemGray6))
-                                            .clipShape(Capsule())
-                                    }
-                                }
+                                Text(term.antonymsList.joined(separator: ", "))
+                                    .font(.callout)
                             }
                         }
                     }
@@ -203,23 +188,25 @@ struct TermDetailView: View {
                     .padding(.top, 16)
                 }
 
-                // MARK: - Divider before Occurrences
-                RoundedRectangle(cornerRadius: 0.5)
-                    .fill(Color(.separator))
-                    .frame(height: 2)
-                    .padding(.horizontal)
-                    .padding(.top, 16)
+                // MARK: - Snap Image
+                if let snapPath = term.snapImagePath,
+                   let snapImage = StorageService().loadImage(at: snapPath) {
+                    RoundedRectangle(cornerRadius: 0.5)
+                        .fill(Color(.separator))
+                        .frame(height: 2)
+                        .padding(.horizontal)
+                        .padding(.top, 16)
 
-                // MARK: - Occurrences
-                let sorted = term.occurrences.sorted { $0.createdAt > $1.createdAt }
-                if !sorted.isEmpty {
-                    LazyVStack(spacing: 16) {
-                        ForEach(sorted) { occurrence in
-                            OccurrenceRow(occurrence: occurrence)
-                        }
-                    }
-                    .padding(.top, 20)
-                    .padding(.horizontal)
+                    Image(uiImage: snapImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .strokeBorder(Color(.separator), lineWidth: 0.5)
+                        )
+                        .padding(.top, 16)
+                        .padding(.horizontal)
                 }
             }
             .padding(.bottom, 24)

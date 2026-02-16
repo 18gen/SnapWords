@@ -129,40 +129,24 @@ struct ReviewView: View {
                         .clipShape(Capsule())
 
                     if !term.synonymsList.isEmpty {
-                        VStack(spacing: 4) {
+                        VStack(spacing: 2) {
                             Text(locale("detail.synonyms"))
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                                 .textCase(.uppercase)
-                            HStack(spacing: 6) {
-                                ForEach(term.synonymsList, id: \.self) { word in
-                                    Text(word)
-                                        .font(.caption)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 4)
-                                        .background(Color(.systemGray6))
-                                        .clipShape(Capsule())
-                                }
-                            }
+                            Text(term.synonymsList.joined(separator: ", "))
+                                .font(.caption)
                         }
                     }
 
                     if !term.antonymsList.isEmpty {
-                        VStack(spacing: 4) {
+                        VStack(spacing: 2) {
                             Text(locale("detail.antonyms"))
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                                 .textCase(.uppercase)
-                            HStack(spacing: 6) {
-                                ForEach(term.antonymsList, id: \.self) { word in
-                                    Text(word)
-                                        .font(.caption)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 4)
-                                        .background(Color(.systemGray6))
-                                        .clipShape(Capsule())
-                                }
-                            }
+                            Text(term.antonymsList.joined(separator: ", "))
+                                .font(.caption)
                         }
                     }
                 }
@@ -215,12 +199,18 @@ struct ReviewView: View {
 
     private func markGotIt(_ term: Term) {
         term.dueDate = scheduler.gotIt()
+        logReview()
         advance()
     }
 
     private func markAgain(_ term: Term) {
         term.dueDate = scheduler.again()
+        logReview()
         advance()
+    }
+
+    private func logReview() {
+        modelContext.insert(ReviewLog())
     }
 
     private func advance() {

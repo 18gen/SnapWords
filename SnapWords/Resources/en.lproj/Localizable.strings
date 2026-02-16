@@ -111,10 +111,18 @@
 "detail.change_folder" = "Change Folder";
 "detail.occurrences %lld" = "Occurrences (%lld)";
 "detail.definition" = "Definition";
-"detail.example" = "Example";
 "detail.etymology" = "Etymology";
 "detail.synonyms" = "Synonyms";
 "detail.antonyms" = "Antonyms";
+
+/* Home */
+"home.title" = "Home";
+"home.start_review" = "Start Review";
+"home.due_count %lld" = "%lld words due";
+"home.no_due" = "All caught up!";
+"home.activity" = "Activity";
+"heatmap.less" = "Less";
+"heatmap.more" = "More";
 
 /* Settings */
 "settings.title" = "Settings";
