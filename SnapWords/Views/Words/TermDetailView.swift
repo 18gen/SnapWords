@@ -51,7 +51,9 @@ struct TermDetailView: View {
                     headerVisible = visible
                 }
 
-                Divider()
+                RoundedRectangle(cornerRadius: 0.5)
+                    .fill(Color(.separator))
+                    .frame(height: 2)
                     .padding(.horizontal)
 
                 // MARK: - Class & Folder
@@ -103,47 +105,110 @@ struct TermDetailView: View {
                 .padding(.vertical, 16)
                 .padding(.horizontal)
 
-                Divider()
+                RoundedRectangle(cornerRadius: 0.5)
+                    .fill(Color(.separator))
+                    .frame(height: 2)
                     .padding(.horizontal)
 
-                // MARK: - Definition & Example
-                if !term.definition.isEmpty || !term.example.isEmpty || !term.exampleTranslation.isEmpty {
-                    VStack(alignment: .leading, spacing: 0) {
-                        if !term.definition.isEmpty {
-                            Text(term.definition)
-                                .font(.callout)
+                // MARK: - Example Card
+                if !term.example.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(locale("detail.example"))
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.secondary)
+                            .textCase(.uppercase)
+                        boldedExample(term.example, word: term.primary)
+                            .font(.callout)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if !term.exampleTranslation.isEmpty {
+                            boldedExample(term.exampleTranslation, word: term.translation)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.vertical, 16)
-                                .padding(.horizontal)
-                        }
-
-                        if !term.definition.isEmpty && !term.example.isEmpty {
-                            Divider()
-                                .padding(.horizontal)
-                        }
-
-                        if !term.example.isEmpty {
-                            VStack(alignment: .leading, spacing: 2) {
-                                boldedExample(term.example, word: term.primary)
-                                    .font(.callout)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                if !term.exampleTranslation.isEmpty {
-                                    boldedExample(term.exampleTranslation, word: term.translation)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.vertical, 16)
-                            .padding(.horizontal)
                         }
                     }
-
-                    Divider()
-                        .padding(.horizontal)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(16)
+                    .background(Color(.systemGray6))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal)
+                    .padding(.top, 16)
                 }
+
+                // MARK: - Etymology Card
+                if !term.etymology.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(locale("detail.etymology"))
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.secondary)
+                            .textCase(.uppercase)
+                        Text(term.etymology)
+                            .font(.callout)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(16)
+                    .background(Color(.systemGray5))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                }
+
+                // MARK: - Synonyms & Antonyms
+                if !term.synonymsList.isEmpty || !term.antonymsList.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        if !term.synonymsList.isEmpty {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(locale("detail.synonyms"))
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(.secondary)
+                                    .textCase(.uppercase)
+                                HStack(spacing: 8) {
+                                    ForEach(term.synonymsList, id: \.self) { word in
+                                        Text(word)
+                                            .font(.callout)
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
+                                            .background(Color(.systemGray6))
+                                            .clipShape(Capsule())
+                                    }
+                                }
+                            }
+                        }
+                        if !term.antonymsList.isEmpty {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(locale("detail.antonyms"))
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(.secondary)
+                                    .textCase(.uppercase)
+                                HStack(spacing: 8) {
+                                    ForEach(term.antonymsList, id: \.self) { word in
+                                        Text(word)
+                                            .font(.callout)
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
+                                            .background(Color(.systemGray6))
+                                            .clipShape(Capsule())
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+                    .padding(.top, 16)
+                }
+
+                // MARK: - Divider before Occurrences
+                RoundedRectangle(cornerRadius: 0.5)
+                    .fill(Color(.separator))
+                    .frame(height: 2)
+                    .padding(.horizontal)
+                    .padding(.top, 16)
 
                 // MARK: - Occurrences
                 let sorted = term.occurrences.sorted { $0.createdAt > $1.createdAt }
@@ -174,6 +239,7 @@ struct TermDetailView: View {
         }
         .sheet(isPresented: $showFolderPicker) {
             FolderPickerView(term: term)
+                .environment(locale)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
         }
