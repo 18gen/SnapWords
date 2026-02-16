@@ -47,7 +47,7 @@ struct ShareImportView: View {
                     }
                 )
                 .frame(maxWidth: .infinity)
-                .aspectRatio(16/9, contentMode: .fit)
+                .aspectRatio(16.0/9.0, contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(alignment: .bottomTrailing) {
                     zoomButtons
@@ -89,6 +89,7 @@ struct ShareImportView: View {
                         token: token,
                         allTokens: allTokens,
                         image: displayImage,
+                        visibleRect: currentVisibleRect,
                         onSave: { selectedToken = nil },
                         onCancel: { selectedToken = nil }
                     )
@@ -175,7 +176,7 @@ struct ShareImportView: View {
 
                 if isSaved(token) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Color(red: 0.361, green: 0.722, blue: 0.478))
                         .font(.body)
                 } else {
                     Image(systemName: "chevron.right")

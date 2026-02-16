@@ -30,6 +30,7 @@ struct ZoomableImageView: UIViewRepresentable {
         if scrollView.imageView?.image !== image {
             scrollView.imageView?.image = image
             scrollView.zoomScale = 1.0
+            scrollView.lastBoundsSize = .zero
             scrollView.setNeedsLayout()
         }
         zoomController.scrollView = scrollView
@@ -40,24 +41,44 @@ struct ZoomableImageView: UIViewRepresentable {
     class ZoomableScrollView: UIScrollView {
         weak var imageView: UIImageView?
         weak var coordinator: Coordinator?
+        var lastBoundsSize: CGSize = .zero
 
         override func layoutSubviews() {
             super.layoutSubviews()
             guard let imageView else { return }
-            // Fill width: image width = scroll view width, height scaled proportionally
-            if let image = imageView.image, image.size.width > 0 {
-                let scale = bounds.width / image.size.width
-                let imageH = image.size.height * scale
-                imageView.frame = CGRect(x: 0, y: 0, width: bounds.width, height: imageH)
-                contentSize = imageView.frame.size
-            } else {
-                imageView.frame = bounds
-                contentSize = bounds.size
+
+            // Only recalculate base frame when bounds actually change
+            // (first layout, rotation, container resize).
+            // During zoom, bounds.size stays the same — skip to avoid
+            // fighting the zoom transform.
+            if bounds.size != lastBoundsSize {
+                lastBoundsSize = bounds.size
+                if let image = imageView.image, image.size.width > 0 {
+                    let scale = bounds.width / image.size.width
+                    let imageH = image.size.height * scale
+                    imageView.frame = CGRect(origin: .zero,
+                        size: CGSize(width: bounds.width, height: imageH))
+                    contentSize = imageView.frame.size
+                    zoomScale = 1.0
+                } else {
+                    imageView.frame = bounds
+                    contentSize = bounds.size
+                }
             }
+
+            centerImageView()
+
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 self.coordinator?.reportVisibleRect(self)
             }
+        }
+
+        func centerImageView() {
+            guard let imageView else { return }
+            let xOffset = max(0, (bounds.width - contentSize.width) / 2)
+            let yOffset = max(0, (bounds.height - contentSize.height) / 2)
+            imageView.frame.origin = CGPoint(x: xOffset, y: yOffset)
         }
     }
 
@@ -70,6 +91,11 @@ struct ZoomableImageView: UIViewRepresentable {
 
         func viewForZooming(in scrollView: UIScrollView) -> UIView? {
             (scrollView as? ZoomableScrollView)?.imageView
+        }
+
+        func scrollViewDidZoom(_ scrollView: UIScrollView) {
+            (scrollView as? ZoomableScrollView)?.centerImageView()
+            reportVisibleRect(scrollView)
         }
 
         func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {

@@ -103,6 +103,7 @@ struct WordListView: View {
         }
         .sheet(isPresented: $showNewSubfolder) {
             FolderFormView(parentFolder: folder)
+                .environment(locale)
         }
         .sheet(item: $importConfig) { config in
             NavigationStack {
@@ -112,6 +113,7 @@ struct WordListView: View {
                     initialSourceMode: config.sourceMode
                 )
             }
+            .environment(locale)
         }
         .overlay {
             if filteredTerms.isEmpty && sortedChildren.isEmpty && searchText.isEmpty {

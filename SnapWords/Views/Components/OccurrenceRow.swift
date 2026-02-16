@@ -12,6 +12,10 @@ struct OccurrenceRow: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .strokeBorder(Color(.separator), lineWidth: 0.5)
+                    )
             }
 
             Text(occurrence.createdAt, style: .date)

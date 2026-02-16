@@ -64,7 +64,7 @@ struct ImportView: View {
         VStack(spacing: 0) {
             imageArea
                 .frame(maxWidth: .infinity)
-                .aspectRatio(16/9, contentMode: .fit)
+                .aspectRatio(16.0/9.0, contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(alignment: .bottomTrailing) {
                     if displayedImage != nil {
@@ -132,11 +132,13 @@ struct ImportView: View {
                         token: token,
                         allTokens: allTokens,
                         image: image,
+                        visibleRect: currentVisibleRect,
                         onSave: { selectedToken = nil },
                         onCancel: { selectedToken = nil }
                     )
                 }
             }
+            .environment(locale)
             .presentationDragIndicator(.visible)
             .presentationDetents([.height(420)])
         }
@@ -285,7 +287,7 @@ struct ImportView: View {
 
                 if isSaved(token) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Color(red: 0.361, green: 0.722, blue: 0.478))
                         .font(.body)
                 } else {
                     Image(systemName: "chevron.right")

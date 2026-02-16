@@ -43,6 +43,7 @@ struct SettingsView: View {
             }
         }
         .navigationTitle(locale("settings.title"))
+        .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(
             locale("settings.delete_confirm_title"),
             isPresented: $showDeleteConfirmation,

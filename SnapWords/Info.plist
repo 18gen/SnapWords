@@ -29,6 +29,8 @@
     <true/>
     <key>NSCameraUsageDescription</key>
     <string>SnapWords uses your camera to capture text from photos for word learning.</string>
+    <key>UIUserInterfaceStyle</key>
+    <string>Dark</string>
     <key>UILaunchScreen</key>
     <dict/>
     <key>UISupportedInterfaceOrientations</key>

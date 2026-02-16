@@ -1,22 +1,16 @@
 import SwiftUI
 import SwiftData
-import PhotosUI
 import LensCore
 
 struct WordsView: View {
-    @Binding var captureImage: UIImage?
-    @Binding var captureFilename: String?
+    var onAddWords: () -> Void
 
     @Environment(\.modelContext) private var modelContext
     @Environment(AppLocale.self) private var locale
     @Query(sort: \Folder.sortOrder) private var allFolders: [Folder]
     @Query(sort: \Term.createdAt, order: .reverse) private var allTerms: [Term]
 
-    @State private var importConfig: ImportSheetConfig?
-    @State private var showNewFolder = false
     @State private var searchText = ""
-    @State private var showPhotoPicker = false
-    @State private var pickerItem: PhotosPickerItem?
 
     private var topLevelFolders: [Folder] {
         allFolders
@@ -50,35 +44,13 @@ struct WordsView: View {
     var body: some View {
         NavigationStack {
             wordsList
-                .sheet(item: $importConfig) { config in
-                    importSheet(config: config)
-                }
-                .sheet(isPresented: $showNewFolder) {
-                    FolderFormView()
-                }
-                .photosPicker(isPresented: $showPhotoPicker, selection: $pickerItem, matching: .images)
-                .onChange(of: pickerItem) { _, newValue in
-                    guard let newValue else { return }
-                    Task {
-                        if let data = try? await newValue.loadTransferable(type: Data.self),
-                           let img = UIImage(data: data) {
-                            captureImage = img
-                            pickerItem = nil
-                        }
-                    }
-                }
-                .onChange(of: captureImage) { _, newValue in
-                    if newValue != nil && importConfig == nil {
-                        importConfig = ImportSheetConfig(sourceMode: .photo)
-                    }
-                }
         }
     }
 
     // MARK: - Subviews
 
     private var wordsList: some View {
-        let title = locale("tab.words")
+        let title = locale("tab.library")
         return List {
             if isSearching {
                 searchResultsContent
@@ -86,7 +58,6 @@ struct WordsView: View {
                 folderModeContent
             }
 
-            // Add button when empty (no terms)
             if allTerms.isEmpty && !isSearching {
                 addWordsRow
                     .listRowSeparator(.hidden)
@@ -94,23 +65,30 @@ struct WordsView: View {
         }
         .listStyle(.plain)
         .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, prompt: Text(locale("words.search")))
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    onAddWords()
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+        }
         .navigationDestination(for: Term.self) { term in
             TermDetailView(term: term)
+                .environment(locale)
         }
         .navigationDestination(for: Folder.self) { folder in
             WordListView(folder: folder)
-        }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                addMenuButton
-            }
+                .environment(locale)
         }
     }
 
     private var addWordsRow: some View {
         Button {
-            showPhotoPicker = true
+            onAddWords()
         } label: {
             HStack {
                 Spacer()
@@ -163,42 +141,6 @@ struct WordsView: View {
 
         if matchingFolders.isEmpty && searchResults.isEmpty {
             ContentUnavailableView.search(text: searchText)
-        }
-    }
-
-    private var addMenuButton: some View {
-        Menu {
-            Button {
-                showPhotoPicker = true
-            } label: {
-                Label(locale("menu.scan_photo"), systemImage: "photo")
-            }
-
-            Button {
-                importConfig = ImportSheetConfig(sourceMode: .camera)
-            } label: {
-                Label(locale("import.camera"), systemImage: "camera")
-            }
-
-            Divider()
-
-            Button {
-                showNewFolder = true
-            } label: {
-                Label(locale("menu.new_folder"), systemImage: "folder.badge.plus")
-            }
-        } label: {
-            Image(systemName: "plus")
-        }
-    }
-
-    private func importSheet(config: ImportSheetConfig) -> some View {
-        NavigationStack {
-            ImportView(
-                captureImage: $captureImage,
-                captureFilename: $captureFilename,
-                initialSourceMode: config.sourceMode
-            )
         }
     }
 
