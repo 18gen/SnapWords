@@ -8,6 +8,7 @@ struct ImportView: View {
     @Binding var captureImage: UIImage?
     @Binding var captureFilename: String?
     let initialSourceMode: SourceMode
+    let defaultFolderID: UUID?
 
     @Environment(\.dismiss) private var dismiss
     @Environment(AppLocale.self) private var locale
@@ -32,11 +33,13 @@ struct ImportView: View {
     init(
         captureImage: Binding<UIImage?>,
         captureFilename: Binding<String?>,
-        initialSourceMode: SourceMode = .photo
+        initialSourceMode: SourceMode = .photo,
+        defaultFolderID: UUID? = nil
     ) {
         self._captureImage = captureImage
         self._captureFilename = captureFilename
         self.initialSourceMode = initialSourceMode
+        self.defaultFolderID = defaultFolderID
     }
 
     private var visibleTokens: [RecognizedToken] {
@@ -133,6 +136,7 @@ struct ImportView: View {
                         allTokens: allTokens,
                         image: image,
                         visibleRect: currentVisibleRect,
+                        defaultFolderID: defaultFolderID,
                         onSave: { selectedToken = nil },
                         onCancel: { selectedToken = nil }
                     )
