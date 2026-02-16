@@ -123,6 +123,8 @@
 "home.activity" = "Activity";
 "heatmap.less" = "Less";
 "heatmap.more" = "More";
+"heatmap.browse" = "Browse";
+"heatmap.select" = "Select";
 
 /* Settings */
 "settings.title" = "Settings";

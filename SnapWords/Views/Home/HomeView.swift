@@ -55,11 +55,6 @@ struct HomeView: View {
     private var homeContent: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Heatmap
-                ContributionHeatmapView(allTerms: allTerms, reviewLogs: reviewLogs)
-                    .environment(locale)
-                    .padding(.horizontal)
-
                 // Review button
                 Button {
                     navigateToReview = true
@@ -90,6 +85,11 @@ struct HomeView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .padding(.horizontal)
+                
+                // Heatmap
+                ContributionHeatmapView(allTerms: allTerms, reviewLogs: reviewLogs)
+                    .environment(locale)
+                    .padding(.horizontal)
             }
             .padding(.top, 8)
             .padding(.bottom, 32)

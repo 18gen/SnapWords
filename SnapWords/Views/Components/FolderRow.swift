@@ -33,6 +33,5 @@ struct FolderRow: View {
 
             Spacer()
         }
-        .padding(.vertical, 4)
     }
 }

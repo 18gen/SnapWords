@@ -4,7 +4,7 @@ import LensCore
 struct FolderIcon: View {
     let iconName: String
     let colorHex: String
-    var size: CGFloat = 44
+    var size: CGFloat = 40
 
     private var folderColor: Color { Color(hex: colorHex) }
     private var showIcon: Bool { !iconName.isEmpty }

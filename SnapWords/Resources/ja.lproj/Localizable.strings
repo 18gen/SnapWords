@@ -123,6 +123,8 @@
 "home.activity" = "アクティビティ";
 "heatmap.less" = "少";
 "heatmap.more" = "多";
+"heatmap.browse" = "閲覧";
+"heatmap.select" = "選択";
 
 /* Settings */
 "settings.title" = "設定";
