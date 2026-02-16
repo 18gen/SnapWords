@@ -84,6 +84,7 @@
 "folders.subfolders" = "Subfolders";
 "folders.subfolders_count %lld" = "%lld subfolder(s)";
 "folder.unfiled" = "Unfiled";
+"folder.none" = "None";
 
 /* Folder Form */
 "folder_form.new_title" = "New Folder";
