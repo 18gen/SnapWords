@@ -8,6 +8,9 @@ public struct GroqRichResult: Sendable {
     public let pos: POS
     public let lemma: String
     public let phrase: String?
+    public let etymology: String
+    public let synonyms: String
+    public let antonyms: String
 }
 
 public enum GroqError: Error {
@@ -50,7 +53,7 @@ public struct GroqService: Sendable {
                 ["role": "user", "content": userContent]
             ],
             "temperature": 0.0,
-            "max_tokens": 300
+            "max_tokens": 500
         ]
 
         var request = makeRequest()
@@ -85,7 +88,7 @@ public struct GroqService: Sendable {
             ],
             "response_format": ["type": "json_object"],
             "temperature": 0.0,
-            "max_tokens": 300
+            "max_tokens": 500
         ]
 
         var request = makeRequest()
@@ -105,13 +108,14 @@ public struct GroqService: Sendable {
 
         Analyze this word IN ITS SPECIFIC CONTEXT. Return a JSON object:
         - "translation": the \(targetName) translation appropriate for this context
-        - "definition": 1-sentence explanation in simple \(sourceName) of this specific meaning/nuance
         - "example": example sentence in \(sourceName) using the word with this same meaning
-        - "pos": one of "verb", "adjective", "noun", "phrase", "other"
-        - "lemma": base/dictionary form in \(sourceName)
-        - "phrase": if the word is part of a multi-word expression (phrasal verb, idiom), the full phrase; otherwise null
+        - "pos": one of "verb", "adjective", "noun", "other"
+        - "lemma": base/dictionary form in \(sourceName) (single word only)
+        - "etymology": brief word origin (1-2 sentences) written in \(targetName)
+        - "synonyms": up to 3 synonyms in \(sourceName), comma-separated
+        - "antonyms": up to 3 antonyms in \(sourceName), comma-separated
 
-        IMPORTANT: Detect phrases. e.g. "take" in "take off your shoes" → phrase: "take off"
+        IMPORTANT: Always classify as verb, adjective, noun, or other. Even for phrasal verbs (e.g. "take off"), set pos to "verb" and lemma to the single verb (e.g. "take").
         Respond with only the JSON object.
         """
     }
@@ -158,7 +162,10 @@ public struct GroqService: Sendable {
             example: parsed.example ?? "",
             pos: POS(rawValue: parsed.pos) ?? .other,
             lemma: parsed.lemma,
-            phrase: parsed.phrase
+            phrase: parsed.phrase,
+            etymology: parsed.etymology ?? "",
+            synonyms: parsed.synonyms ?? "",
+            antonyms: parsed.antonyms ?? ""
         )
     }
 
@@ -212,6 +219,9 @@ private struct GroqResponseContent: Decodable {
     let pos: String
     let lemma: String
     let phrase: String?
+    let etymology: String?
+    let synonyms: String?
+    let antonyms: String?
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -221,9 +231,12 @@ private struct GroqResponseContent: Decodable {
         pos = try container.decode(String.self, forKey: .pos)
         lemma = try container.decode(String.self, forKey: .lemma)
         phrase = try container.decodeIfPresent(String.self, forKey: .phrase)
+        etymology = try container.decodeIfPresent(String.self, forKey: .etymology)
+        synonyms = try container.decodeIfPresent(String.self, forKey: .synonyms)
+        antonyms = try container.decodeIfPresent(String.self, forKey: .antonyms)
     }
 
     enum CodingKeys: String, CodingKey {
-        case translation, definition, example, pos, lemma, phrase
+        case translation, definition, example, pos, lemma, phrase, etymology, synonyms, antonyms
     }
 }
