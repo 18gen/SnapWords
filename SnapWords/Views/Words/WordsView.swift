@@ -57,11 +57,6 @@ struct WordsView: View {
             } else {
                 folderModeContent
             }
-
-            if allTerms.isEmpty && !isSearching {
-                addWordsRow
-                    .listRowSeparator(.hidden)
-            }
         }
         .listStyle(.plain)
         .navigationTitle(title)
@@ -84,22 +79,6 @@ struct WordsView: View {
             WordListView(folder: folder)
                 .environment(locale)
         }
-    }
-
-    private var addWordsRow: some View {
-        Button {
-            onAddWords()
-        } label: {
-            HStack {
-                Spacer()
-                Label(locale("words.add_words"), systemImage: "plus.circle.fill")
-                    .font(.body)
-                    .foregroundStyle(Color.accentColor)
-                Spacer()
-            }
-            .padding(.vertical, 24)
-        }
-        .buttonStyle(.plain)
     }
 
     // MARK: - Folder Mode
