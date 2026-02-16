@@ -3,6 +3,8 @@ import SwiftData
 import LensCore
 
 struct HomeView: View {
+    var onAddWords: () -> Void
+
     @Environment(\.modelContext) private var modelContext
     @Environment(AppLocale.self) private var locale
     @Query(sort: \Term.createdAt, order: .reverse) private var allTerms: [Term]
@@ -51,7 +53,7 @@ struct HomeView: View {
         ScrollView {
             VStack(spacing: 20) {
                 // Heatmap
-                ContributionHeatmapView(allTerms: allTerms, reviewLogs: reviewLogs, navigateToReview: $navigateToReview)
+                ContributionHeatmapView(allTerms: allTerms, reviewLogs: reviewLogs, navigateToReview: $navigateToReview, onAddWords: onAddWords)
                     .environment(locale)
                     .padding(.horizontal)
             }
