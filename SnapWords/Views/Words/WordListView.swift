@@ -71,7 +71,7 @@ struct WordListView: View {
                     }
 
                     Button {
-                        importConfig = ImportSheetConfig(sourceMode: .camera)
+                        importConfig = ImportSheetConfig(sourceMode: .camera, defaultFolderID: folder.id)
                     } label: {
                         Label(locale("import.camera"), systemImage: "camera")
                     }
@@ -96,7 +96,7 @@ struct WordListView: View {
                 if let data = try? await newValue.loadTransferable(type: Data.self),
                    let img = UIImage(data: data) {
                     selectedImage = img
-                    importConfig = ImportSheetConfig(sourceMode: .photo)
+                    importConfig = ImportSheetConfig(sourceMode: .photo, defaultFolderID: folder.id)
                     pickerItem = nil
                 }
             }
@@ -110,7 +110,8 @@ struct WordListView: View {
                 ImportView(
                     captureImage: $selectedImage,
                     captureFilename: .constant(nil),
-                    initialSourceMode: config.sourceMode
+                    initialSourceMode: config.sourceMode,
+                    defaultFolderID: config.defaultFolderID
                 )
             }
             .environment(locale)
