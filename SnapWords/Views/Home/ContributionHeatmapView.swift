@@ -4,6 +4,7 @@ import LensCore
 struct ContributionHeatmapView: View {
     let allTerms: [Term]
     let reviewLogs: [ReviewLog]
+    var onAddWords: () -> Void
 
     @Environment(AppLocale.self) private var locale
     @State private var selectedCell: CellID?
@@ -21,10 +22,11 @@ struct ContributionHeatmapView: View {
 
     private let baseGreen = Color(red: 0.22, green: 0.65, blue: 0.36)
 
-    init(allTerms: [Term], reviewLogs: [ReviewLog], navigateToReview: Binding<Bool>) {
+    init(allTerms: [Term], reviewLogs: [ReviewLog], navigateToReview: Binding<Bool>, onAddWords: @escaping () -> Void) {
         self.allTerms = allTerms
         self.reviewLogs = reviewLogs
         self._navigateToReview = navigateToReview
+        self.onAddWords = onAddWords
         _selectedYear = State(initialValue: Calendar.current.component(.year, from: Date()))
     }
 
@@ -393,11 +395,24 @@ struct ContributionHeatmapView: View {
             switch detailMode {
             case .added:
                 if termsForSelectedDate.isEmpty {
-                    Text(locale("heatmap.no_activity"))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.vertical, 12)
+                    if calendar.isDateInToday(selectedDate) {
+                        Button {
+                            onAddWords()
+                        } label: {
+                            Label(locale("words.add_words"), systemImage: "plus.circle.fill")
+                                .font(.body)
+                                .foregroundStyle(Color.accentColor)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(.vertical, 12)
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        Text(locale("heatmap.no_activity"))
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.vertical, 12)
+                    }
                 } else {
                     ForEach(termsForSelectedDate) { term in
                         NavigationLink(value: term) {
