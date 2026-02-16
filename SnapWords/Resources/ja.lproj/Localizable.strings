@@ -1,4 +1,7 @@
 /* Tabs */
+"tab.home" = "ホーム";
+"tab.create" = "作成";
+"tab.library" = "ライブラリ";
 "tab.words" = "単語";
 "tab.review" = "復習";
 "tab.settings" = "設定";
@@ -107,6 +110,11 @@
 "detail.no_folder" = "フォルダに未登録です。";
 "detail.change_folder" = "フォルダを変更";
 "detail.occurrences %lld" = "出現 (%lld)";
+"detail.definition" = "定義";
+"detail.example" = "例文";
+"detail.etymology" = "語源";
+"detail.synonyms" = "類義語";
+"detail.antonyms" = "対義語";
 
 /* Settings */
 "settings.title" = "設定";

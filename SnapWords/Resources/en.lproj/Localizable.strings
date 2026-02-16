@@ -1,4 +1,7 @@
 /* Tabs */
+"tab.home" = "Home";
+"tab.create" = "Create";
+"tab.library" = "Library";
 "tab.words" = "Words";
 "tab.review" = "Review";
 "tab.settings" = "Settings";
@@ -107,6 +110,11 @@
 "detail.no_folder" = "Not in any folder.";
 "detail.change_folder" = "Change Folder";
 "detail.occurrences %lld" = "Occurrences (%lld)";
+"detail.definition" = "Definition";
+"detail.example" = "Example";
+"detail.etymology" = "Etymology";
+"detail.synonyms" = "Synonyms";
+"detail.antonyms" = "Antonyms";
 
 /* Settings */
 "settings.title" = "Settings";
