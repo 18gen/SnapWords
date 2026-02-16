@@ -3,7 +3,7 @@ import SwiftData
 
 public enum SharedModelContainer {
     public static func create() throws -> ModelContainer {
-        let schema = Schema([Term.self, Occurrence.self, Sense.self, Folder.self])
+        let schema = Schema([Term.self, Occurrence.self, Sense.self, Folder.self, ReviewLog.self])
 
         let containerURL = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: StorageService.appGroupIdentifier

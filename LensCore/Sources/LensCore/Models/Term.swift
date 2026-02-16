@@ -16,6 +16,7 @@ public final class Term {
     public var etymology: String = ""
     public var synonyms: String = ""
     public var antonyms: String = ""
+    public var snapImagePath: String?
     public var articleMode: Bool
     public var reviewBox: Int
     public var dueDate: Date
