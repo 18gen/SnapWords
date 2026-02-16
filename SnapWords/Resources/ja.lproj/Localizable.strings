@@ -84,6 +84,7 @@
 "folders.subfolders" = "サブフォルダ";
 "folders.subfolders_count %lld" = "%lld サブフォルダ";
 "folder.unfiled" = "未分類";
+"folder.none" = "なし";
 
 /* Folder Form */
 "folder_form.new_title" = "新規フォルダ";
