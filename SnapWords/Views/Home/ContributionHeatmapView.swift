@@ -180,6 +180,23 @@ struct ContributionHeatmapView: View {
                     let date = dateFor(week: displayCell.week, day: displayCell.day)
                     Text(date.formatted(.dateTime.month(.abbreviated).day()))
                         .font(.headline)
+                    if !calendar.isDateInToday(selectedDate) {
+                        Button {
+                            let currentYear = calendar.component(.year, from: Date())
+                            if selectedYear != currentYear {
+                                selectedYear = currentYear
+                            } else {
+                                selectedCell = defaultCell
+                                proxy.scrollTo(initialScrollWeek, anchor: .leading)
+                            }
+                        } label: {
+                            Text(locale("heatmap.today"))
+                                .font(.subheadline)
+                                .foregroundStyle(.accent)
+                        }
+                        .buttonStyle(.plain)
+                        .transition(.opacity)
+                    }
                     Spacer()
                     modePicker
                     yearSwitcher

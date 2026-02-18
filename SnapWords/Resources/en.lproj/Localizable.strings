@@ -131,6 +131,7 @@
 "heatmap.no_activity" = "No activity";
 "heatmap.reviews_count %lld" = "%lld review(s)";
 "heatmap.start_review" = "Start Review";
+"heatmap.today" = "Today";
 
 /* Settings */
 "settings.title" = "Settings";

@@ -131,6 +131,7 @@
 "heatmap.no_activity" = "アクティビティなし";
 "heatmap.reviews_count %lld" = "%lld 件の復習";
 "heatmap.start_review" = "復習を始める";
+"heatmap.today" = "今日";
 
 /* Settings */
 "settings.title" = "設定";
